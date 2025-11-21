@@ -2,15 +2,11 @@
 #define PLAYER_H
 
 #include <string>
+using namespace std;
 
 class Rubis; // forward reference to Rubis class (if only dealing with pointers and references)
 
 class Player {
-
-    private:
-        std::string name;
-        bool isActive;
-        int numRubies;
 
     public:
         // Constructors and destructor
@@ -18,7 +14,7 @@ class Player {
         ~Player();
 
         // Enumeration
-        enum Side {
+        enum Side { // modern version of enums (cannot implicitly cast to integer)
             top,
             bottom,
             left,
@@ -28,18 +24,23 @@ class Player {
         // Public interface
         std::string getName() const;
         void setActive(bool);
-        bool isActive();
+        bool isActive() const;
         int getNRubies() const;
         void addRubis(const Rubis&);
         void setDisplayMode(bool endOfGame);
-        Side Player::getSide();
-        void Player::setSide(Side);
+        Side getSide() const;
+        void setSide(Side);
 
         // Getters and setters
         
         // Friend functions
         friend std::ostream& operator<<(std::ostream& os, const Player& obj);
-
+    
+    private:
+        std::string name;
+        bool active;
+        int numRubies;
+        Side side;
 };
 
 #endif
