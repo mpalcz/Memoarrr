@@ -8,7 +8,7 @@ string Player::getName() const {
 }
 
 void Player::setActive(bool activityStatus) {
-    active = activityStatus;
+    if (activityStatus != active) active = activityStatus;
 }
 
 bool Player::isActive() const {
@@ -27,10 +27,31 @@ void Player::setDisplayMode(bool endOfGame) {
 
 }
 
-Side Player::getSide() const {
+Player::Side Player::getSide() const {
     return side;
 }
 
 void Player::setSide(Side newSide) {
-    side = newSide;
+    if (newSide != side) side = newSide;
+}
+
+string Player::sideToString() const{
+    switch(side) {
+        case Player::left: return "left";
+        case Player::right: return "right";
+        case Player::top: return "top";
+        case Player::bottom: return "bottom";
+        default: return "unknown";
+    }
+}
+
+// Operator<< definition
+ostream& operator<<(ostream& os, const Player& obj) {
+    os << obj.name << ": ";
+    if (!obj.endOfGame) {
+        os << obj.sideToString() << (obj.active ? " (active)" : " (inactive)") << endl;
+    } else {
+        os << obj.getNRubies() << " rubies" << endl;
+    }
+    return os;
 }
