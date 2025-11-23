@@ -8,16 +8,11 @@ class Rubis; // forward reference to Rubis class (if only dealing with pointers 
 class Player {
 
   public:
-    // Enumerations
-    enum Side { // modern version of enums (cannot implicitly cast to integer)
-        top,
-        bottom,
-        left,
-        right
-    };
+    // modern version of enums (cannot implicitly cast to integer)
+    enum Side { top, bottom, left, right };
 
     // Constructors and destructor
-    Player(std::string name, Side side);
+    Player(std::string n, Side s) : name(n), side(s) {}
     ~Player();
 
     // Public interface
