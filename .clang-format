@@ -1,0 +1,6 @@
+BasedOnStyle: LLVM
+AllowShortEnumsOnASingleLine: true
+IndentCaseLabels: false
+AllowShortCaseLabelsOnASingleLine: true
+ColumnLimit: 150
+IndentWidth: 4
