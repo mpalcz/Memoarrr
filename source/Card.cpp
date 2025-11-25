@@ -52,6 +52,23 @@ std::string Card::operator()(int row) const {
     return s;
 }
 
+// used for board turnFaceUp turnFaceDown
+bool Card::turnFaceUp() {
+    if (this->isFaceUp()) {
+        return false;
+    }
+    faceUp = true;
+    return true;
+}
+
+bool Card::turnFaceDown() {
+    if (!this->isFaceUp()) {
+        return false;
+    }
+    faceUp = false;
+    return true;
+}
+
 // print the entire card (3 rows)
 std::ostream &operator<<(std::ostream &os, const Card &c) {
     for (int row = 0; row < c.getNRows(); ++row) {

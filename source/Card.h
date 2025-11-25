@@ -21,6 +21,9 @@ class Card {
 
   public:
     int getNRows() const { return numRows; };
+    bool isFaceUp() const { return faceUp; }
+    bool turnFaceUp();
+    bool turnFaceDown();
 
     // conversions
     operator FaceAnimal() const { return animal; }
