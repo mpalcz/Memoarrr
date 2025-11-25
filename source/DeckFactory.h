@@ -9,7 +9,7 @@ template <typename C> class DeckFactory {
 
     // could maybe make these private actually
     std::vector<C> deck;                       // deck stored as a vector of C
-    typename std::vector<C>::iterator current; // use an iterator instead so that we can compare vector values (which are iterators)
+    typename std::vector<C>::iterator current; // use an iterator for easier implemetation with vectors
 
   public:
     void shuffle();
