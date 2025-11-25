@@ -13,8 +13,7 @@ class Card {
     friend class CardDeck; // establish friendship for access to private
 
   private:
-    Card(FaceAnimal card_animal,
-         FaceBackground card_backgroun); // private constructor
+    Card(FaceAnimal a, FaceBackground b); // private constructor
     FaceAnimal animal;
     FaceBackground background;
     static constexpr int numRows = 3; // might need to change for expert levelgames but for now cards are always 3 rows
