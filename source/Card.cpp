@@ -73,6 +73,7 @@ bool Card::turnFaceDown() {
 std::ostream &operator<<(std::ostream &os, const Card &c) {
     for (int row = 0; row < c.getNRows(); ++row) {
         std::string rowString = c(row);
-        std::cout << rowString << std::endl;
+        os << rowString << std::endl;
     }
+    return os;
 }

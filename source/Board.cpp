@@ -48,3 +48,31 @@ void Board::allFacesDown() {
         }
     }
 }
+
+std::ostream &operator<<(std::ostream &os, const Board &b) {
+
+    for (int row = 0; row < 5; ++row) {
+        for (int card_row = 0; card_row < 3; ++card_row) {
+            // add letters at the beginning of each row (or blank spaces)
+            if (card_row == 2) {
+                char c = 'A' + row; // first row is 'A', second is 'B' etc. by incrementing ascii value
+                os << c << "    ";
+            } else {
+                os << "     ";
+            }
+
+            for (int col = 0; col < 5; ++col) {
+                const Card &card = b.board[row][col]; // needs to be const since board is const
+                std::string out = card(card_row);
+                os << out << " ";
+            }
+            os << std::endl; // end line after all 5 card rows were printed
+        }
+        os << "\n"; // leave a line in between before the next card row
+    }
+    os << "\n";
+
+    // print numbers at the bottom
+    os << " 1   2   3   4   5 ";
+    return os;
+}
