@@ -17,5 +17,6 @@ class Board {
     bool turnFaceDown(const Letter &, const Number &);
     Card *getCard(const Letter &, const Number &);
     void allFacesDown();
-}
+};
+
 #endif
