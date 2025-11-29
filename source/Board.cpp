@@ -1,9 +1,17 @@
 #include <Board.h>
 #include <CardDeck.h>
+#include <DeckFactory.h>
+#include <stdexcept>
+
+// small class for NoMoreCards exception
+class NoMoreCards : public std::runtime_error {
+  public:
+    NoMoreCards() : std::runtime_error("No more cards to draw from in the deck!") {}
+};
 
 Board::Board() {
     // generate deck of cards and shuffle them
-    CardDeck boardDeck = CardDeck::make_CardDeck();
+    CardDeck &boardDeck = CardDeck::make_CardDeck();
     boardDeck.shuffle();
 
     // add each card to the board but skip the middle one
@@ -11,7 +19,11 @@ Board::Board() {
         for (int j = 0; j < 5; ++j) {
             // if its not the middle spot then add the card (0 indexed here)
             if (!(i == 2 && j == 2)) {
-                board[i][j] = *boardDeck.getNext(); // get next returns a card pointer so dereference it
+                if (boardDeck.isEmpty()) {
+                    throw NoMoreCards();
+                } else {
+                    board[i][j] = *boardDeck.getNext(); // get next returns a card pointer so dereference it
+                }
             }
         }
     }
@@ -36,6 +48,8 @@ Card *Board::getCard(const Letter &l, const Number &n) {
     Card *card = &board[l - 1][n - 1];
     return card;
 }
+
+void Board::setCard(const Letter &l, const Number &n, Card *c) { board[l - 1][n - 1] = *c; }
 
 void Board::allFacesDown() {
     for (int i = 0; i < 5; ++i) {

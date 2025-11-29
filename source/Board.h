@@ -17,6 +17,7 @@ class Board {
     bool turnFaceUp(const Letter &, const Number &);
     bool turnFaceDown(const Letter &, const Number &);
     Card *getCard(const Letter &, const Number &);
+    void setCard(const Letter &, const Number &, Card *);
     void allFacesDown();
     friend std::ostream &operator<<(std::ostream &os, const Board &b);
 };
