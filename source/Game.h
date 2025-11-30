@@ -12,9 +12,11 @@ class Game {
     std::vector<Player> players;
     const Card *current = nullptr; // const since these are just pointers not changing the Card
     const Card *previous = nullptr;
-    Player::Side turn = Player::Side::top; // keep track of whos turn it is (top by default)
+    Player::Side turn = Player::Side::top; // probably can be removed (switched to currnetPlayerIndex)
+    int currentPlayerIndex = 0;
 
   public:
+    // methods asked for in the assignment
     Game(); // default constructor, we will add players after construction
     int getRound() const { return round; }
     void addPlayer(const Player &);
@@ -26,11 +28,17 @@ class Game {
     void setCard(const Board::Letter &, const Board::Number &, Card *);
     friend std::ostream &operator<<(std::ostream &os, const Game &g); // cout << operator
 
+    // added methods (not in assignment description)
+    void allFacesDown() { gameBoard.allFacesDown(); } // so that Game can flip all cards
+    int getCurrentPlayerIndex() const { return currentPlayerIndex; }
+    Player &getCurrentPlayer() { return players[currentPlayerIndex]; }
+    const Player &getCurrentPlayer() const { return players[currentPlayerIndex]; } // have a const one as well so we can get the player without change
+    void activatePlayer(Player &p) { p.setActive(true); }
+    void deactivatePlayer(Player &p) { p.setActive(false); }
+    void deactivateCurrentPlayer() { deactivatePlayer(getCurrentPlayer()); }
+    void startRound();
     const std::vector<Player> &getPlayers() const { return players; } // let others check the players but not modify them
     Player::Side getTurn() const { return turn; }                     // get the player whos turn it is
-    void rotateTurn() {
-        // cast the integer back to an enum and have turn circle back based on number of players
-        turn = static_cast<Player::Side>((static_cast<int>(turn) + 1) % players.size());
-    }
+    void nextTurn() { currentPlayerIndex = (currentPlayerIndex + 1) % players.size(); }
 };
 #endif

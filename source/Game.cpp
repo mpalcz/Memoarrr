@@ -29,3 +29,18 @@ std::ostream &operator<<(std::ostream &os, const Game &g) {
         os << player.getName() << ": " << player.getSide() << std::endl;
     }
 }
+
+void Game::startRound() {
+    round += 1;
+    currentPlayerIndex = 0;
+    allFacesDown();
+
+    // activate all players for the round
+    for (Player &p : players) {
+        p.setActive(true);
+    }
+
+    // might need to change this for other game modes to keep track of previous card (expert mode perhaps)
+    current = nullptr;
+    previous = nullptr;
+}

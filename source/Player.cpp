@@ -20,7 +20,7 @@ void Player::addRubis(const Rubis &rubis) {
 }
 
 void Player::setDisplayMode(bool endOfGame) {
-    // TODO
+    // TODO probably for expert mode or smth
 }
 
 Player::Side Player::getSide() const { return side; }

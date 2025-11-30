@@ -24,8 +24,6 @@ bool Rules::roundOver(const Game &g) {
     return true;
 }
 const Player &Rules::getNextPlayer(const Game &g) {
-    const std::vector<Player> &players = g.getPlayers();
-    int currentIndex = static_cast<int>(g.getTurn());
-    int nextIndex = (currentIndex + 1) % players.size();
-    return players[nextIndex];
+    int nextIndex = (g.getCurrentPlayerIndex() + 1) % g.getPlayers().size();
+    return g.getPlayers()[nextIndex];
 }
