@@ -62,7 +62,7 @@ void Board::setCard(const Letter &l, const Number &n, Card *c) {
 
 void Board::allFacesDown() {
     for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
             // skip middle card again
             if (!(i == 2 && j == 2)) {
                 Card card = board[i][j];
