@@ -14,10 +14,12 @@ class Card {
 
   private:
     Card(FaceAnimal a, FaceBackground b); // private constructor
+    Card() : isBlank(true) {}             // when using default constructor, make a blank card
     FaceAnimal animal;
     FaceBackground background;
     static constexpr int numRows = 3; // might need to change for expert levelgames but for now cards are always 3 rows
     bool faceUp = false;
+    bool isBlank = false; // for prininting the middle card in the board
 
   public:
     int getNRows() const { return numRows; };

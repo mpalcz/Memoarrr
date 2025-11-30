@@ -49,7 +49,16 @@ Card *Board::getCard(const Letter &l, const Number &n) {
     return card;
 }
 
-void Board::setCard(const Letter &l, const Number &n, Card *c) { board[l - 1][n - 1] = *c; }
+void Board::setCard(const Letter &l, const Number &n, Card *c) {
+    int lIndex = l - 1; // implicit conversion to int
+    int nIndex = n - 1;
+
+    if ((lIndex > 4 || lIndex < 0 || nIndex > 4 || nIndex < 0)) {
+        throw std::out_of_range("Invalid index for a card");
+    } else {
+        board[lIndex][nIndex] = *c;
+    }
+}
 
 void Board::allFacesDown() {
     for (int i = 0; i < 5; ++i) {

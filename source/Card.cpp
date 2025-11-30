@@ -35,6 +35,10 @@ Card::Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {}
 
 // function operator() - returns a single row of of the card (1 of 3)
 std::string Card::operator()(int row) const {
+    if (isBlank) {
+        return "   "; // print spaces for middle board piece
+    }
+
     // if the card is face down ever row is zzz
     if (!faceUp) {
         return "zzz";
