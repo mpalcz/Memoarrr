@@ -1,50 +1,28 @@
 #include "Player.h"
 #include "Rubis.h"
 
-using namespace std;
-
-string Player::getName() const { return name; }
-
-void Player::setActive(bool activityStatus) {
-    if (active != activityStatus) active = activityStatus;
-}
-
-bool Player::isActive() const { return active; }
-
-int Player::getNRubies() const { return numRubies; }
-
-void Player::addRubis(const Rubis &rubis) {
-    int val = rubis; // use int() conversion operator to get the rubis for that card
-    numRubies += val;
-}
-
 void Player::setDisplayMode(bool endOfGame) {
     // TODO probably for expert mode or smth
 }
 
-Player::Side Player::getSide() const { return side; }
-
-void Player::setSide(Side newSide) {
-    if (side != newSide) side = newSide;
-}
-
-string Player::sideToString() const {
+// Converts Side enum to string
+std::string Player::sideToString() const {
     switch (side) {
-    case Player::left: return "left";
-    case Player::right: return "right";
-    case Player::top: return "top";
-    case Player::bottom: return "bottom";
+    case Player::Side::left: return "left";
+    case Player::Side::right: return "right";
+    case Player::Side::top: return "top";
+    case Player::Side::bottom: return "bottom";
     default: return "unknown";
     }
 }
 
-// Operator<< definition
-ostream &operator<<(ostream &os, const Player &obj) {
+// Operator<< overload definition
+std::ostream &operator<<(std::ostream &os, const Player &obj) {
     os << obj.name << ": ";
-    if (!obj.endOfGame) {
-        os << obj.sideToString() << (obj.active ? " (active)" : " (inactive)") << endl;
+    if (!obj.endOfGameDisplay) {
+        os << obj.sideToString() << (obj.active ? " (active)" : " (inactive)") << std::endl;
     } else {
-        os << obj.getNRubies() << (obj.getNRubies() > 1 ? " rubies" : " ruby") << endl;
+        os << obj.getNRubies() << (obj.getNRubies() > 1 ? " rubies" : " ruby") << std::endl;
     }
     return os;
 }

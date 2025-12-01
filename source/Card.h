@@ -1,16 +1,20 @@
 #ifndef CARD_H
 #define CARD_H
+
 #include <iostream>
 #include <string>
 
 // could also define enums inside the class since it is only being used on cards
-enum FaceAnimal { Crab, Penguin, Octopus, Turtle, Walrus };
-enum FaceBackground { Red, Green, Purple, Blue, Yellow };
 
 class CardDeck; // forward declaration of card deck
 
 class Card {
-    friend class CardDeck; // establish friendship for access to private
+  friend class CardDeck; // establish friendship for access to private
+
+  public:
+  // Card Enums
+    enum class FaceAnimal { Crab, Penguin, Octopus, Turtle, Walrus };
+    enum class FaceBackground { Red, Green, Purple, Blue, Yellow };
 
   private:
     Card(FaceAnimal a, FaceBackground b); // private constructor
@@ -22,6 +26,7 @@ class Card {
     bool isBlank = false; // for prininting the middle card in the board
 
   public:
+    
     int getNRows() const { return numRows; };
     bool isFaceUp() const { return faceUp; }
     bool turnFaceUp();
@@ -36,6 +41,7 @@ class Card {
 
     // make Card "printable"
     friend std::ostream &operator<<(std::ostream &os, const Card &c);
+
 };
 
 #endif

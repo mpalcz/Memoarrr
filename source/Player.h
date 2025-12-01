@@ -3,28 +3,28 @@
 
 #include <string>
 
-class Rubis; // forward reference to Rubis class (if only dealing with pointers and references)
+class Rubis; // forward reference
 
 class Player {
 
   public:
-    // modern version of enums (cannot implicitly cast to integer)
-    enum Side { top, bottom, left, right };
+    // either change it to be an enum class or move to GameEnums.h file
+    enum class Side { top, bottom, left, right };
 
     // Constructors and destructor
-    Player(std::string n, Side s) : name(n), side(s), active(true), numRubies(0), endOfGame(false) {}
-    Player() : name(""), side(top) {} // default constructor
-    ~Player();
+    Player(std::string n, Side s) : name(n), side(s) {}
+    Player() : name(""), side(Side::top) {} // default constructor (may need to delete or change)
+    ~Player(); // is this necessary?
 
-    // Public interface
-    std::string getName() const;
-    void setActive(bool);
-    bool isActive() const;
-    int getNRubies() const;
-    void addRubis(const Rubis &);
-    void setDisplayMode(bool endOfGame);
-    Side getSide() const;
-    void setSide(Side);
+    // Public interface (inline functions)
+    std::string getName() const { return name; };
+    void setActive(bool newStatus) { active = newStatus; };
+    bool isActive() const { return active; };
+    int getNRubies() const { return numRubies; };
+    void addRubis(const Rubis &rubisToAdd) { numRubies += rubisToAdd; };
+    void setDisplayMode(bool endOfGame) { endOfGameDisplay = endOfGame; };
+    Side getSide() const { return side; };
+    void setSide(Side newSide) { side = newSide; };
 
     // Getters and setters
     std::string sideToString() const;
@@ -33,12 +33,12 @@ class Player {
     friend std::ostream &operator<<(std::ostream &os, const Player &obj);
 
   private:
-    // Instance variables
+    // Instance variables with default intialization
     std::string name;
-    bool active;
-    int numRubies;
     Side side;
-    bool endOfGame;
+    bool active = true;
+    int numRubies = 0;
+    bool endOfGameDisplay = false;
 };
 
 #endif

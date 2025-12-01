@@ -6,24 +6,24 @@ map enums to chars for output
 make these static for encapsulation within this file
 */
 
-static char animalLetter(FaceAnimal a) {
+static char animalLetter(Card::FaceAnimal a) {
     switch (a) {
-    case Crab: return 'C';
-    case Penguin: return 'P';
-    case Octopus: return 'O';
-    case Turtle: return 'T';
-    case Walrus: return 'W';
+    case Card::FaceAnimal::Crab: return 'C';
+    case Card::FaceAnimal::Penguin: return 'P';
+    case Card::FaceAnimal::Octopus: return 'O';
+    case Card::FaceAnimal::Turtle: return 'T';
+    case Card::FaceAnimal::Walrus: return 'W';
     }
-    return '?'; // fallback (should be impossible)
+    return '?'; // sentinel / fallback (should be impossible)
 }
 
-static char backgroundLetter(FaceBackground b) {
+static char backgroundLetter(Card::FaceBackground b) {
     switch (b) {
-    case Red: return 'r';
-    case Green: return 'g';
-    case Purple: return 'p';
-    case Blue: return 'b';
-    case Yellow: return 'y';
+    case Card::FaceBackground::Red: return 'r';
+    case Card::FaceBackground::Green: return 'g';
+    case Card::FaceBackground::Purple: return 'p';
+    case Card::FaceBackground::Blue: return 'b';
+    case Card::FaceBackground::Yellow: return 'y';
     }
     return '?';
 }
