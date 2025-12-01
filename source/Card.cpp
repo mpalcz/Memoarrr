@@ -13,8 +13,8 @@ static char animalLetter(Card::FaceAnimal a) {
     case Card::FaceAnimal::Octopus: return 'O';
     case Card::FaceAnimal::Turtle: return 'T';
     case Card::FaceAnimal::Walrus: return 'W';
+    default: return '?'; // sentinel
     }
-    return '?'; // sentinel / fallback (should be impossible)
 }
 
 static char backgroundLetter(Card::FaceBackground b) {
@@ -24,14 +24,11 @@ static char backgroundLetter(Card::FaceBackground b) {
     case Card::FaceBackground::Purple: return 'p';
     case Card::FaceBackground::Blue: return 'b';
     case Card::FaceBackground::Yellow: return 'y';
+    default: return '?';
     }
-    return '?';
 }
 
 /*############## CLASS DEFINITIONS ##################*/
-
-// constructor
-Card::Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {}
 
 // function operator() - returns a single row of of the card (1 of 3)
 std::string Card::operator()(int row) const {
@@ -56,6 +53,7 @@ std::string Card::operator()(int row) const {
     return s;
 }
 
+/*
 // used for board turnFaceUp turnFaceDown
 bool Card::turnFaceUp() {
     if (this->isFaceUp()) {
@@ -72,6 +70,7 @@ bool Card::turnFaceDown() {
     faceUp = false;
     return true;
 }
+*/
 
 // print the entire card (3 rows)
 std::ostream &operator<<(std::ostream &os, const Card &c) {

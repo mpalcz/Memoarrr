@@ -36,12 +36,16 @@ bool Board::isFaceUp(const Letter &l, const Number &n) {
 
 bool Board::turnFaceUp(const Letter &l, const Number &n) {
     Card &card = board[l - 1][n - 1]; // needs to be reference to change the board's card rather than the copy's
-    return card.turnFaceUp();
+    if (card.isFaceUp()) return false;
+    card.turnFaceUp();
+    return true;
 }
 
 bool Board::turnFaceDown(const Letter &l, const Number &n) {
     Card &card = board[l - 1][n - 1];
-    return card.turnFaceDown();
+    if (!card.isFaceUp()) return false;
+    card.turnFaceDown();
+    return true;
 }
 
 Card *Board::getCard(const Letter &l, const Number &n) {

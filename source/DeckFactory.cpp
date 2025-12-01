@@ -9,5 +9,5 @@ template <typename C> C *DeckFactory<C>::getNext() {
         return nullptr;
     }
     // return the current card then increment the pointer
-    return &(*current++); // derefernce the iterator to get the actual object in the vector, then take the address (giving you the pointer)
+    return *current++; // derefernce the iterator to get the actual object in the vector, then take the address (giving you the pointer)
 }
