@@ -13,6 +13,7 @@ class Player {
 
     // Constructors and destructor
     Player(std::string n, Side s) : name(n), side(s) {}
+    Player() : name(""), side(top) {} // default constructor
     ~Player();
 
     // Public interface

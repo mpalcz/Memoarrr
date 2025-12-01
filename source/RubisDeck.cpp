@@ -20,3 +20,9 @@ RubisDeck &RubisDeck::make_RubisDeck() {
     static RubisDeck instance;
     return instance;
 }
+
+// for printing rubis
+std::ostream &operator<<(std::ostream &os, const Rubis &r) {
+    os << r.numRubis;
+    return os;
+}

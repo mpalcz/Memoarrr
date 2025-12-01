@@ -31,7 +31,7 @@ std::ostream &operator<<(std::ostream &os, const Game &g) {
 }
 
 void Game::startRound() {
-    round += 1;
+    round++;
     currentPlayerIndex = 0;
     allFacesDown();
 

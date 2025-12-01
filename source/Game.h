@@ -30,6 +30,7 @@ class Game {
 
     // added methods (not in assignment description)
     void allFacesDown() { gameBoard.allFacesDown(); } // so that Game can flip all cards
+    const Board &getBoard() const { return gameBoard; }
     int getCurrentPlayerIndex() const { return currentPlayerIndex; }
     Player &getCurrentPlayer() { return players[currentPlayerIndex]; }
     const Player &getCurrentPlayer() const { return players[currentPlayerIndex]; } // have a const one as well so we can get the player without change
@@ -38,6 +39,7 @@ class Game {
     void deactivateCurrentPlayer() { deactivatePlayer(getCurrentPlayer()); }
     void startRound();
     const std::vector<Player> &getPlayers() const { return players; } // let others check the players but not modify them
+    std::vector<Player> &getPlayers() { return players; }             // also need a non-const for adding rubis
     Player::Side getTurn() const { return turn; }                     // get the player whos turn it is
     void nextTurn() { currentPlayerIndex = (currentPlayerIndex + 1) % players.size(); }
 };
