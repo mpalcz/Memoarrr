@@ -12,7 +12,7 @@ class Player {
     enum Side { top, bottom, left, right };
 
     // Constructors and destructor
-    Player(std::string n, Side s) : name(n), side(s) {}
+    Player(std::string n, Side s) : name(n), side(s), active(true), numRubies(0), endOfGame(false) {}
     Player() : name(""), side(top) {} // default constructor
     ~Player();
 

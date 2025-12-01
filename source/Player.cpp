@@ -6,8 +6,7 @@ using namespace std;
 string Player::getName() const { return name; }
 
 void Player::setActive(bool activityStatus) {
-    if (activityStatus != active)
-        active = activityStatus;
+    if (active != activityStatus) active = activityStatus;
 }
 
 bool Player::isActive() const { return active; }
@@ -26,8 +25,7 @@ void Player::setDisplayMode(bool endOfGame) {
 Player::Side Player::getSide() const { return side; }
 
 void Player::setSide(Side newSide) {
-    if (newSide != side)
-        side = newSide;
+    if (side != newSide) side = newSide;
 }
 
 string Player::sideToString() const {
@@ -46,7 +44,7 @@ ostream &operator<<(ostream &os, const Player &obj) {
     if (!obj.endOfGame) {
         os << obj.sideToString() << (obj.active ? " (active)" : " (inactive)") << endl;
     } else {
-        os << obj.getNRubies() << " rubies" << endl;
+        os << obj.getNRubies() << (obj.getNRubies() > 1 ? " rubies" : " ruby") << endl;
     }
     return os;
 }

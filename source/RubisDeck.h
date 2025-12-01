@@ -8,7 +8,7 @@ class RubisDeck : public DeckFactory<Rubis> {
   private:
     RubisDeck(); // private constructor, same as CardDeck
   public:
-    static RubisDeck &make_RubisDeck(); // method belongs to the class, not an instance
+    static RubisDeck &make_RubisDeck(); // method belongs to the class, not an instance (singleton pattern)
 };
 
 #endif
