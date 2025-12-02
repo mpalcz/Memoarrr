@@ -32,7 +32,6 @@ class Board {
     bool turnFaceDown(const Letter &, const Number &);
     Card *getCard(const Letter &, const Number &);
     const Card *getCard(const Letter &, const Number &) const; // may be able to remove
-    // potentially add const get card function
     void setCard(const Letter &, const Number &, Card *);
     void allFacesDown();
 
