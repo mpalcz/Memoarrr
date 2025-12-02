@@ -23,11 +23,11 @@ class Card {
     FaceAnimal animal;
     FaceBackground background;
     bool faceUp = false;
-    bool isBlank = false;
+    bool blank = false;
 
     // Constructors 
     Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {} // private constructor
-    Card() : isBlank(true) {}             // center empty card
+    Card() : blank(true) {}             // center empty card
     
     //static constexpr int numRows = 3; // might need to change for expert levelgames but for now cards are always 3 rows
 
@@ -40,7 +40,7 @@ class Card {
     std::string operator()(int row) const;
 
     bool isFaceUp() const { return faceUp; }
-    bool isBlank() const { return isBlank; }
+    bool isBlank() const { return blank; }
     void turnFaceUp() { faceUp = true; }
     void turnFaceDown() { faceUp = false; }
 
