@@ -14,7 +14,7 @@ class Board {
     enum class Number { One, Two, Three, Four, Five }; // enum elements have to be identifiers not integers
 
   private:
-    std::unique_ptr<Card> board[Game::BoardSize][Game::BoardSize]; // 5x5 board of cards
+    std::unique_ptr<Card> board[GameParameters::BoardSize][GameParameters::BoardSize]; // 5x5 board of cards
 
     template<typename Enum>
     int toIndex(Enum e) const { return static_cast<int>(e); }
