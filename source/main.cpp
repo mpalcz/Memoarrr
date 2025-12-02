@@ -6,7 +6,7 @@
 #include "Rubis.h"
 #include "RubisDeck.h"
 #include "Rules.h"
-#include "Exceptions.h"          // ← fixes OutOfRange undefined
+#include "Exceptions.h"        
 #include <iostream>
 #include <algorithm>
 #include <cctype>
@@ -40,7 +40,7 @@ int main() {
 
     cout << game << endl;
 
-    // MAIN LOOP - exactly follows the assignment pseudo-code + all required features
+    // MAIN LOOP
     while (!rules.gameOver(game)) {
         cout << "\n####### BEGINNING OF ROUND " << game.getRound() + 1 << " #######\n";
 
