@@ -1,31 +1,32 @@
 #ifndef GAMEPARAMETERS_H
 #define GAMEPARAMETERS_H
 
-#include <unordered_map>
+#include <array>
 #include <tuple>
-#include <cmath>
 
 namespace Game {
-    enum class Side {top, bottom, left, right};
-    enum class Status {active, inactive};
-    inline int numOneRubis = 3;
-    inline int numTwoRubis = 2;
-    inline int numThreeRubis = 1;
-    inline int numFourRubis = 1;
-    inline std::unordered_map<int, int> rubisValues = {
-        {1, numOneRubis},
-        {2, numTwoRubis},
-        {3, numThreeRubis},
-        {4, numFourRubis}
-    };
-    const int boardSize = 5;
-    std::tuple<int, int> emptyCardPosition(std::floor(boardSize/2), std::floor(boardSize/2));
-    
-}
 
-template<typename Enum>
-constexpr int enumCount() {
-    return static_cast<int>(Enum::COUNT);
+    // Board dimension parameters
+    inline constexpr int BoardSize = 5;
+    inline constexpr int CenterRow = BoardSize / 2; // 2
+    inline constexpr int CenterCol = BoardSize / 2; // 2
+    inline constexpr std::tuple<int, int> CenterPosition(CenterRow, CenterCol);
+    inline constexpr int BoardPadding = 3; // Spacing between each row of cards and between the Margins
+
+    // Game play parameters
+    inline constexpr int NumberOfRounds = 7;
+    inline constexpr int PeekCardsPerPlayer = 3;
+
+    // Card parameters
+    inline constexpr int NumRowsCard = 3;
+    inline constexpr int NumAnimals = 5;
+    inline constexpr int NumBackgrounds = 5;
+    inline constexpr int TotalCards = NumAnimals * NumBackgrounds;     // 25
+    inline constexpr int CardsOnBoard = TotalCards - 1;                  // 24
+
+    // Rubis parameters
+    inline constexpr std::array<int, 5> RubisDistribution = {0, 3, 2, 1, 1}; // index = rubis value
+
 }
 
 #endif

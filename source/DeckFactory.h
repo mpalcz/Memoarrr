@@ -1,25 +1,28 @@
 #ifndef DECKFACTORY_H
 #define DECKFACTORY_H
-#include <algorithm> // required for std::random_shuffle
+
 #include <vector>
+#include <algorithm>
+#include <random>
+#include <chrono>
 
-// Potentially add virtual functions (pure virtual functions)
-template <typename C> class DeckFactory {
-
-  protected: // so child classes can access these
-    DeckFactory(std::vector<C*> &d) : deck(d), current(deck.begin()); // IS THIS NECESSARY
-    DeckFactory() : current(deck.begin());
-    virtual ~DeckFactory() { for (auto p : deck) delete p; }
-    
-    // INSTANCE VARIABLES
-    std::vector<C*> deck;                       // deck stored as a vector of C
-    typename std::vector<C*>::iterator current; // use an iterator for easier implemetation with vectors
+template<typename C> class DeckFactory {
+  protected:
+    std::vector<C*> deck;
+    size_t pos = 0;
 
   public:
-    void shuffle();
-    C *getNext();
-    bool isEmpty() const { return current == deck.end(); }
-    // do a make_deck function as a virtual function
+    virtual ~DeckFactory() { for (auto p : deck) delete p; }
+
+    void shuffle() {
+        auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+        std::shuffle(deck.begin(), deck.end(), std::default_random_engine(seed));
+        pos = 0;
+    }
+
+    C* getNext() { return pos < deck.size() ? deck[pos++] : nullptr; }
+
+    bool isEmpty() const { return pos >= deck.size(); }
 };
 
 #endif

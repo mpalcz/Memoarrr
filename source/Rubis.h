@@ -2,6 +2,8 @@
 #define RUBIS_H
 
 #include <iostream>
+#include <stdexcept>
+#include "GameParameters.h"
 
 class RubisDeck;
 
@@ -13,13 +15,17 @@ class Rubis {
     int numRubis;
 
     // Constructor
-    Rubis(int val); // private constructor
-    ~Rubis(); // is this necessary?
+    Rubis(int val) { 
+      if (val == 0 || val >= Game::RubisDistribution.size()) throw std::invalid_argument("Rubis value must be between 1 and 4");
+      numRubis = val;
+    } 
 
   public:
-    // int conversion operator (const since we do not change the object)
     operator int() const { return numRubis; }
-    friend std::ostream &operator<<(std::ostream &os, const Rubis &obj);
+    friend std::ostream& operator<<(std::ostream& os, const Rubis& r) {
+        os << r.numRubis << " rub" << (r.numRubis == 1 ? "y" : "ies");
+        return os;
+    }
 };
 
 #endif

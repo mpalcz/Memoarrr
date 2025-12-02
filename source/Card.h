@@ -1,47 +1,50 @@
 #ifndef CARD_H
 #define CARD_H
 
+#include "GameParameters.h"
 #include <iostream>
 #include <string>
 
-// could also define enums inside the class since it is only being used on cards
-
-class CardDeck; // forward declaration of card deck
+// Forward declarations
+class CardDeck;
+class Board;
 
 class Card {
-  friend class CardDeck; // establish friendship for access to private
+  friend class CardDeck;
+  friend class Board; // So Board can construct blank card
 
   public:
-  // Card Enums
-    enum class FaceAnimal { Crab, Penguin, Octopus, Turtle, Walrus, COUNT };
-    enum class FaceBackground { Red, Green, Purple, Blue, Yellow, COUNT };
+    // Card Enums
+    enum class FaceAnimal { Crab, Penguin, Octopus, Turtle, Walrus };
+    enum class FaceBackground { Red, Green, Purple, Blue, Yellow };
 
   private:
-    // Constructors 
-    Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {} // private constructor
-    Card() : isBlank(true) {}             // when using default constructor, make a blank card
-    
     // Instance variables
     FaceAnimal animal;
     FaceBackground background;
-    static constexpr int numRows = 3; // might need to change for expert levelgames but for now cards are always 3 rows
     bool faceUp = false;
-    bool isBlank = false; // for printing the middle card in the board
+    bool isBlank = false;
+
+    // Constructors 
+    Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {} // private constructor
+    Card() : isBlank(true) {}             // center empty card
+    
+    //static constexpr int numRows = 3; // might need to change for expert levelgames but for now cards are always 3 rows
 
   public:
-    
-    int getNRows() const { return numRows; }
-    bool isFaceUp() const { return faceUp; }
-    void turnFaceUp() { faceUp = true; }
-    void turnFaceDown() { faceUp = false; }
-  
-
     // Conversion operators
     operator FaceAnimal() const { return animal; }
     operator FaceBackground() const { return background; }
 
     // function operator take a row and return a string to output
     std::string operator()(int row) const;
+
+    bool isFaceUp() const { return faceUp; }
+    bool isBlank() const { return isBlank; }
+    void turnFaceUp() { faceUp = true; }
+    void turnFaceDown() { faceUp = false; }
+
+    static constexpr int getNRows() { return Game::NumRowsCard; }
 
     // make Card "printable"
     friend std::ostream &operator<<(std::ostream &os, const Card &c);

@@ -1,51 +1,53 @@
-#include <Board.h>
-#include <CardDeck.h>
-#include <DeckFactory.h>
-#include <stdexcept>
-#include <GameParameters.h>
+#include "Board.h"
+#include "CardDeck.h"
+#include "Exceptions.h"
 
-// small class for NoMoreCards exception
-class NoMoreCards : public std::runtime_error {
-  public:
-    NoMoreCards() : std::runtime_error("No more cards to draw from in the deck!") {}
+/*
+bool Board::checkPositionValidity(int row, int column) const{
+    std::tuple<int, int> cardPosition(row, column);
+    if (row < 0 || row >= Game::BoardSize || column < 0 || column >= Game::BoardSize || cardPosition == Game::CenterPosition) {
+        return false;
+    }
+    return true;
 };
+*/
 
-class InvalidPosition : public std::runtime_error {
-    public:
-        InvalidPosition() : std::runtime_error("Card position chosen is invalid") {}
+void Board::validatePosition(const Letter &l, const Number &n) const{
+    int row = toIndex<Board::Letter>(l), column = toIndex<Board::Number>(n);
+    std::tuple<int, int> cardPosition(row, column);
+    if (row < 0 || row >= Game::BoardSize || column < 0 || column >= Game::BoardSize || cardPosition == Game::CenterPosition) {
+        throw InvalidPosition();
+    }
 };
 
 Board::Board() {
     // generate deck of cards and shuffle them
     CardDeck &boardDeck = CardDeck::make_CardDeck();
-    boardDeck.shuffle();
 
-    // add each card to the board but skip the middle one
-    for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 5; ++j) {
-            // if its not the middle spot then add the card (0 indexed here)
-            if (!(i == 2 && j == 2)) {
-                if (boardDeck.isEmpty()) {
-                    throw NoMoreCards();
-                } else {
-                    board[i][j] = *boardDeck.getNext(); // get next returns a card pointer so dereference it
-                }
+    for (int i = 0; i < Game::BoardSize; ++i) {
+        for (int j = 0; j < Game::BoardSize; ++j) {
+            if (i == Game::CenterRow && j == Game::CenterCol) {
+                board[i][j] = std::make_unique<Card>(); // blank center
+            } else {
+                Card* card = boardDeck.getNext();
+                if (!card) throw NoMoreCards();
+                board[i][j] = std::unique_ptr<Card>(card);
             }
         }
     }
 }
 
-bool Board::checkPositionValidity(int row, int column) const{
-    std::tuple<int, int> cardPosition(row, column);
-    if (row < 0 || row >= Game::boardSize || column < 0 || column >= Game::boardSize || cardPosition == Game::emptyCardPosition) {
-        return false;
-    }
-    return true;
-};
+// GETTERS
+Card *Board::getCard(const Letter &l, const Number &n) {
+    validatePosition(l, n);
+    int row = toIndex<Board::Letter>(l), column = toIndex<Board::Number>(n);
+    return board[row][column].get();
+}
 
-bool Board::isFaceUp(const Letter &l, const Number &n) const{
-    const Card *card = getCard(l, n);
-    return card->isFaceUp();
+const Card *Board::getCard(const Letter &l, const Number &n) const {
+    validatePosition(l, n);
+    int row = toIndex<Board::Letter>(l), column = toIndex<Board::Number>(n);
+    return board[row][column].get();
 }
 
 bool Board::turnFaceUp(const Letter &l, const Number &n) {
@@ -62,30 +64,24 @@ bool Board::turnFaceDown(const Letter &l, const Number &n) {
     return true;
 }
 
-Card *Board::getCard(const Letter &l, const Number &n){
-    int row = toIndex<Board::Letter>(l), column = toIndex<Board::Number>(n);
-    if (!checkPositionValidity(row, column)) throw InvalidPosition();
-    Card *card = &board[row][column];
-    return card;
-}
-
 void Board::setCard(const Letter &l, const Number &n, Card *c) {
-    Card *card = getCard(l, n);
-    card = c;
+    // Check validity
+    validatePosition(l, n);
+    int row = toIndex<Board::Letter>(l), column = toIndex<Board::Number>(n);
+    board[row][column].reset(c);
 }
 
 void Board::allFacesDown() {
-    for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 5; ++j) {
-            // skip middle card again
-            if (!(i == 2 && j == 2)) {
-                Card card = board[i][j];
-                card.turnFaceDown();
+    for (int i = 0; i < Game::BoardSize; ++i) {
+        for (int j = 0; j < Game::BoardSize; ++j) {
+            if (!(i == Game::CenterRow && j == Game::CenterCol)) {
+                board[i][j]->turnFaceDown();
             }
         }
     }
 }
 
+/*
 std::ostream &operator<<(std::ostream &os, const Board &b) {
 
     for (int row = 0; row < 5; ++row) {
@@ -111,5 +107,29 @@ std::ostream &operator<<(std::ostream &os, const Board &b) {
 
     // print numbers at the bottom
     os << " 1   2   3   4   5 ";
+    return os;
+}
+*/
+
+// Printing unchanged — still perfect match to PDF
+// Go line by line downwards
+std::ostream& operator<<(std::ostream& os, const Board& b) {
+    for (int row = 0; row < Game::BoardSize; ++row) {
+        for (int cardRow = 0; cardRow < Game::NumRowsCard; ++cardRow) {
+            // Print left margin of the board
+            os << ((cardRow == Game::NumRowsCard/2) ? std::string(1, 'A' + row) : " ");
+            os << std::string(Game::BoardPadding, ' ');
+
+            // Print the horizontal cards in the row
+            for (int col = 0; col < Game::BoardSize; ++col) {
+                const Card* card = b.board[row][col].get();
+                os << (*card)(cardRow);
+                if (col < 4) os << ' ';
+            }
+            os << '\n';
+        }
+        os << std::string(Game::BoardPadding, '\n');
+    }
+    os << std::string(Game::BoardPadding, ' ') << " 1   2   3   4   5\n";
     return os;
 }

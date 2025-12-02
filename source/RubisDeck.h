@@ -1,8 +1,8 @@
 #ifndef RUBISDECK_H
 #define RUBISDECK_H
 
-#include <DeckFactory.h>
-#include <Rubis.h>
+#include "DeckFactory.h"
+#include "Rubis.h"
 
 class RubisDeck : public DeckFactory<Rubis> {
   private:
