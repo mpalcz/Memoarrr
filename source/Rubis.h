@@ -16,7 +16,7 @@ class Rubis {
 
     // Constructor
     Rubis(int val) { 
-      if (val == 0 || val >= Game::RubisDistribution.size()) throw std::invalid_argument("Rubis value must be between 1 and 4");
+      if (val == 0 || val >= GameParameters::RubisDistribution.size()) throw std::invalid_argument("Rubis value must be between 1 and 4");
       numRubis = val;
     } 
 

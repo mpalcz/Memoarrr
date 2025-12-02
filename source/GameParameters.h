@@ -4,7 +4,7 @@
 #include <array>
 #include <tuple>
 
-namespace Game {
+namespace GameParameters {
 
     // Board dimension parameters
     inline constexpr int BoardSize = 5;

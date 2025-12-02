@@ -1,46 +1,60 @@
 #ifndef GAME_H
 #define GAME_H
-#include <Board.h>
-#include <Card.h>
-#include <Player.h>
-#include <vector> // for keep track of players
+
+#include "Board.h"
+#include "Player.h"
+#include <vector>
+#include <cstddef>
 
 class Game {
-  private:
-    Board gameBoard; // calls Board constructor
-    int round = 0;
-    std::vector<Player> players;
-    const Card *current = nullptr; // const since these are just pointers not changing the Card
-    const Card *previous = nullptr;
-    Player::Side turn = Player::Side::top; // probably can be removed (switched to currnetPlayerIndex)
-    int currentPlayerIndex = 0;
+    private:
+        Board board;
+        std::vector<Player> players;
+        int round = 0;
+        const Card* previousCard = nullptr;
+        const Card* currentCard  = nullptr;
+        size_t currentPlayerIdx = 0;
 
-  public:
-    // methods asked for in the assignment
-    Game(); // default constructor, we will add players after construction
-    int getRound() const { return round; }
-    void addPlayer(const Player &);
-    Player &getPlayer(Player::Side);
-    const Card *getPreviousCard() const { return previous; } // return a const and also make the method const since we arent changing anyhting
-    const Card *getCurrentCard() const { return current; }   // can only call const methods on a const object (relevant for Rules class)
-    void setCurrentCard(const Card *c);
-    Card *getCard(const Board::Letter &, const Board::Number &);
-    void setCard(const Board::Letter &, const Board::Number &, Card *);
-    friend std::ostream &operator<<(std::ostream &os, const Game &g); // cout << operator
+    public:
+        int getRound() const { return round; }
 
-    // added methods (not in assignment description)
-    void allFacesDown() { gameBoard.allFacesDown(); } // so that Game can flip all cards
-    const Board &getBoard() const { return gameBoard; }
-    int getCurrentPlayerIndex() const { return currentPlayerIndex; }
-    Player &getCurrentPlayer() { return players[currentPlayerIndex]; }
-    const Player &getCurrentPlayer() const { return players[currentPlayerIndex]; } // have a const one as well so we can get the player without change
-    void activatePlayer(Player &p) { p.setActive(true); }
-    void deactivatePlayer(Player &p) { p.setActive(false); }
-    void deactivateCurrentPlayer() { deactivatePlayer(getCurrentPlayer()); }
-    void startRound();
-    const std::vector<Player> &getPlayers() const { return players; } // let others check the players but not modify them
-    std::vector<Player> &getPlayers() { return players; }             // also need a non-const for adding rubis
-    Player::Side getTurn() const { return turn; }                     // get the player whos turn it is
-    void nextTurn() { currentPlayerIndex = (currentPlayerIndex + 1) % players.size(); }
+        void addPlayer(const Player& p) { players.push_back(p); }
+
+        Player& getPlayer(Player::Side s);
+        const Player& getPlayer(Player::Side s) const;
+
+        const Card* getPreviousCard() const { return previousCard; }
+        const Card* getCurrentCard() const { return currentCard; }
+        void setCurrentCard(const Card* c) { previousCard = currentCard; currentCard = c; }
+
+        Card* getCard(Board::Letter l, Board::Number n) { return board.getCard(l, n); }
+        const Card* getCard(Board::Letter l, Board::Number n) const { return board.getCard(l, n); }
+        void setCard(Board::Letter l, Board::Number n, Card* c) { board.setCard(l, n, c); }
+
+        // ADDED methods
+
+        bool turnFaceUp(Board::Letter l, Board::Number n) { return board.turnFaceUp(l, n); }
+        bool turnFaceDown(Board::Letter l, Board::Number n) { return board.turnFaceDown(l, n); }
+        const Board& getBoard() const { return board; }
+
+        void allFacesDown() { board.allFacesDown(); }
+
+        Player& getCurrentPlayer() { return players[currentPlayerIdx]; }
+        size_t getCurrentPlayerIndex() const { return currentPlayerIdx; }
+        const Player& getCurrentPlayer() const { return players[currentPlayerIdx]; }
+        void nextPlayer() { currentPlayerIdx = (currentPlayerIdx + 1) % players.size(); }
+
+        void startNewRound() {
+            round++;
+            allFacesDown();
+            for (auto& p : players) p.setActive(true);
+            previousCard = currentCard = nullptr;
+            currentPlayerIdx = 0;
+        }
+
+        std::vector<Player>& getPlayers() { return players; }
+
+        friend std::ostream& operator<<(std::ostream& os, const Game& g);
 };
+
 #endif

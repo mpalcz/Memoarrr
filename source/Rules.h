@@ -1,16 +1,15 @@
 #ifndef RULES_H
 #define RULES_H
 
-class Game;
-class Player;
+#include "Game.h"
+#include "Card.h"
 
 class Rules {
   public:
-    bool isValid(const Game &);
-    bool gameOver(const Game &);
-    bool roundOver(const Game &);
-    const Player &getNextPlayer(const Game &);
-    friend std::ostream &operator<<(std::ostream &os, const Rubis &r);
+    bool isValid(const Game &) const;
+    bool gameOver(const Game &) const;
+    bool roundOver(const Game &) const;
+    const Player &getNextPlayer(const Game &) const;
 };
 
 #endif

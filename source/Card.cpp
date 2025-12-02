@@ -35,8 +35,8 @@ std::string Card::operator()(int row) const {
     if (!faceUp) return "zzz";
 
     // Card is square shaped (thus NumColumnsCard = NumRowsCard)
-    std::string s(Game::NumRowsCard, backgroundLetter(background));
-    int middleIndex = Game::NumRowsCard/2;
+    std::string s(GameParameters::NumRowsCard, backgroundLetter(background));
+    int middleIndex = GameParameters::NumRowsCard/2;
     if (row == middleIndex) s[middleIndex] = animalLetter(animal);
     return s;
 }

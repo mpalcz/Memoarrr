@@ -1,7 +1,9 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "GameParameters.h"
 #include <string>
+#include <iostream>
 
 class Rubis; // forward reference
 
@@ -14,14 +16,13 @@ class Player {
     // Constructors and destructor
     Player(std::string n, Side s) : name(n), side(s) {}
     Player() : name(""), side(Side::top) {} // default constructor (may need to delete or change)
-    ~Player(); // is this necessary?
 
     // Public interface (inline functions)
-    std::string getName() const { return name; };
+    const std::string& getName() const { return name; }; // should it return const string or string
     void setActive(bool newStatus) { active = newStatus; };
     bool isActive() const { return active; };
     int getNRubies() const { return numRubies; };
-    void addRubis(const Rubis &rubisToAdd) { numRubies += rubisToAdd; };
+    void addRubis(const Rubis &rubisToAdd) { numRubies += int(rubisToAdd); };
     void setDisplayMode(bool endOfGame) { endOfGameDisplay = endOfGame; };
     Side getSide() const { return side; };
     void setSide(Side newSide) { side = newSide; };

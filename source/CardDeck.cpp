@@ -3,8 +3,8 @@
 #include <GameParameters.h>
 
 CardDeck::CardDeck() {
-    for (int animalIdx = 0; animalIdx < Game::NumAnimals; ++animalIdx) {
-        for (int backgroundIdx = 0; backgroundIdx < Game::NumBackgrounds; ++backgroundIdx) {
+    for (int animalIdx = 0; animalIdx < GameParameters::NumAnimals; ++animalIdx) {
+        for (int backgroundIdx = 0; backgroundIdx < GameParameters::NumBackgrounds; ++backgroundIdx) {
             deck.push_back(new Card((Card::FaceAnimal)animalIdx, (Card::FaceBackground)backgroundIdx));
         }
     }

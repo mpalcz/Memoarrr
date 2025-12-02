@@ -1,46 +1,20 @@
 #include "Game.h"
-#include <string>
 
-void Game::addPlayer(const Player &p) {
-    players.push_back(p); // apend to vector
-}
-Player &Game::getPlayer(Player::Side s) {
-    return players[static_cast<int>(s)]; // operator[] on a vector returns a reference
+Player& Game::getPlayer(Player::Side s) {
+    for (auto& p : players)
+        if (p.getSide() == s) return p;
+    throw std::out_of_range("No player on that side");
 }
 
-void Game::setCurrentCard(const Card *c) {
-    previous = current;
-    current = c;
+const Player& Game::getPlayer(Player::Side s) const {
+    for (const auto& p : players)
+        if (p.getSide() == s) return p;
+    throw std::out_of_range("No player on that side");
 }
 
-Card *Game::getCard(const Board::Letter &l, const Board::Number &n) {
-    Card *card = gameBoard.getCard(l, n);
-    return card;
-}
-void Game::setCard(const Board::Letter &l, const Board::Number &n, Card *c) { gameBoard.setCard(l, n, c); }
-
-std::ostream &operator<<(std::ostream &os, const Game &g) {
-    // display board using Board ostream
-    os << g.gameBoard << std::endl;
-
-    // display players names (not scores so skip using Player ostream)
-    for (int i = 0; i < g.players.size(); i++) {
-        const Player &player = g.players[i];
-        os << player.getName() << ": " << player.getSide() << std::endl;
-    }
-}
-
-void Game::startRound() {
-    round++;
-    currentPlayerIndex = 0;
-    allFacesDown();
-
-    // activate all players for the round
-    for (Player &p : players) {
-        p.setActive(true);
-    }
-
-    // might need to change this for other game modes to keep track of previous card (expert mode perhaps)
-    current = nullptr;
-    previous = nullptr;
+std::ostream& operator<<(std::ostream& os, const Game& g) {
+    os << g.board << '\n';
+    for (const auto& p : g.players)
+        os << p << '\n';
+    return os;
 }

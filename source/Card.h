@@ -44,7 +44,7 @@ class Card {
     void turnFaceUp() { faceUp = true; }
     void turnFaceDown() { faceUp = false; }
 
-    static constexpr int getNRows() { return Game::NumRowsCard; }
+    static constexpr int getNRows() { return GameParameters::NumRowsCard; }
 
     // make Card "printable"
     friend std::ostream &operator<<(std::ostream &os, const Card &c);
