@@ -24,7 +24,7 @@ static char backgroundLetter(Card::FaceBackground b) {
     case Card::FaceBackground::Purple: return 'p';
     case Card::FaceBackground::Blue: return 'b';
     case Card::FaceBackground::Yellow: return 'y';
-    default: return '?';
+    default: return '?'; // sentinel value
     }
 }
 

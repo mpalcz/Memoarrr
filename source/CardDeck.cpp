@@ -1,20 +1,14 @@
 #include <Card.h>
 #include <CardDeck.h>
+#include <GameParameters.h>
 
 CardDeck::CardDeck() {
-    // Create one of each card
-    std::vector<Card> cards; // to be passed to deck class variable
-
-    for (int a = 0; a < 5; ++a) {
-        for (int c = 0; c < 5; ++c) {
-            Card card = Card((FaceAnimal)a, (FaceBackground)c);
-            cards.push_back(card); // default copy constructor is fine since no pointers
+    for (int animalIdx = 0; animalIdx < enumCount<Card::FaceAnimal>(); ++animalIdx) {
+        for (int backgroundIdx = 0; backgroundIdx < enumCount<Card::FaceBackground>(); ++backgroundIdx) {
+            deck.push_back(new Card((Card::FaceAnimal)animalIdx, (Card::FaceBackground)backgroundIdx));
         }
     }
-
-    // set class variables (inherited from DeckFactory)
-    deck = cards;
-    current = deck.begin();
+    shuffle();
 }
 
 // singleton pattern to only allow access to a single object of the class

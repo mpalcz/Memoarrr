@@ -1,13 +1,13 @@
 #include "DeckFactory.h"
+#include <random>
 
 template <typename C> void DeckFactory<C>::shuffle() {
-    std::shuffle(deck.begin(), deck.end()); // random_shuffle was removed in newer C++ versions
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::shuffle(deck.begin(), deck.end(), std::default_random_engine(seed));
     current = deck.begin();
 }
+
 template <typename C> C *DeckFactory<C>::getNext() {
-    if (current == deck.end()) {
-        return nullptr;
-    }
-    // return the current card then increment the pointer
-    return *current++; // derefernce the iterator to get the actual object in the vector, then take the address (giving you the pointer)
+    if (current == deck.end()) return nullptr;
+    return *current++;
 }

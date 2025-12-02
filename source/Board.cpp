@@ -2,11 +2,17 @@
 #include <CardDeck.h>
 #include <DeckFactory.h>
 #include <stdexcept>
+#include <GameParameters.h>
 
 // small class for NoMoreCards exception
 class NoMoreCards : public std::runtime_error {
   public:
     NoMoreCards() : std::runtime_error("No more cards to draw from in the deck!") {}
+};
+
+class InvalidPosition : public std::runtime_error {
+    public:
+        InvalidPosition() : std::runtime_error("Card position chosen is invalid") {}
 };
 
 Board::Board() {
@@ -29,39 +35,43 @@ Board::Board() {
     }
 }
 
-bool Board::isFaceUp(const Letter &l, const Number &n) {
-    const Card &card = board[l - 1][n - 1]; // enums are 1-indexed so subtract 1 for board position
-    return card.isFaceUp();
+bool Board::checkPositionValidity(int row, int column) const{
+    std::tuple<int, int> cardPosition(row, column);
+    if (row < 0 || row >= Game::boardSize || column < 0 || column >= Game::boardSize || cardPosition == Game::emptyCardPosition) {
+        return false;
+    }
+    return true;
+};
+
+bool Board::isFaceUp(const Letter &l, const Number &n) const{
+    const Card *card = getCard(l, n);
+    return card->isFaceUp();
 }
 
 bool Board::turnFaceUp(const Letter &l, const Number &n) {
-    Card &card = board[l - 1][n - 1]; // needs to be reference to change the board's card rather than the copy's
-    if (card.isFaceUp()) return false;
-    card.turnFaceUp();
+    Card *card = getCard(l, n);
+    if (card->isFaceUp()) return false;
+    card->turnFaceUp();
     return true;
 }
 
 bool Board::turnFaceDown(const Letter &l, const Number &n) {
-    Card &card = board[l - 1][n - 1];
-    if (!card.isFaceUp()) return false;
-    card.turnFaceDown();
+    Card *card = getCard(l, n);
+    if (!card->isFaceUp()) return false;
+    card->turnFaceDown();
     return true;
 }
 
-Card *Board::getCard(const Letter &l, const Number &n) {
-    Card *card = &board[l - 1][n - 1];
+Card *Board::getCard(const Letter &l, const Number &n){
+    int row = toIndex<Board::Letter>(l), column = toIndex<Board::Number>(n);
+    if (!checkPositionValidity(row, column)) throw InvalidPosition();
+    Card *card = &board[row][column];
     return card;
 }
 
 void Board::setCard(const Letter &l, const Number &n, Card *c) {
-    int lIndex = l - 1; // implicit conversion to int
-    int nIndex = n - 1;
-
-    if ((lIndex > 4 || lIndex < 0 || nIndex > 4 || nIndex < 0)) {
-        throw std::out_of_range("Invalid index for a card");
-    } else {
-        board[lIndex][nIndex] = *c;
-    }
+    Card *card = getCard(l, n);
+    card = c;
 }
 
 void Board::allFacesDown() {

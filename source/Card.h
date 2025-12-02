@@ -13,8 +13,8 @@ class Card {
 
   public:
   // Card Enums
-    enum class FaceAnimal { Crab, Penguin, Octopus, Turtle, Walrus };
-    enum class FaceBackground { Red, Green, Purple, Blue, Yellow };
+    enum class FaceAnimal { Crab, Penguin, Octopus, Turtle, Walrus, COUNT };
+    enum class FaceBackground { Red, Green, Purple, Blue, Yellow, COUNT };
 
   private:
     // Constructors 
@@ -34,6 +34,7 @@ class Card {
     bool isFaceUp() const { return faceUp; }
     void turnFaceUp() { faceUp = true; }
     void turnFaceDown() { faceUp = false; }
+  
 
     // Conversion operators
     operator FaceAnimal() const { return animal; }
