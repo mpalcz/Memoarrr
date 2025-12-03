@@ -5,6 +5,13 @@ Full implementation of the Memoarrr! memory card game (base + expert display + e
 using modern C++17, polymorphism for expert card effects, singleton decks, and clean separation
 of concerns as required by the specification.
 
+Requirements (to run):
+---------------------
+    • C++17-compliant compiler (g++ 8+, clang++ 6+, MSVC 2019+, Apple clang 11+)
+    • No external libraries
+    • Works on Windows, Linux, macOS
+    • Runs in any terminal
+
 Features
 --------
 - Base game fully functional
@@ -29,15 +36,15 @@ DeckFactory.h       - template base for decks
 GameParameters.h    - all constants
 Exceptions.h        - custom exceptions
 
-Requirements to compile and run code:
-ADDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
-
-Compilation (Linux/macOS/Windows g++)
-------------------------------------
+Compilation (command):
+---------------------
+1. (Windows g++):
 g++ -std=c++17 -Wall -Wextra -pedantic *.cpp -o memoarrr.exe
+2. (macOs/Linux) 
+g++ -std=c++17 -Wall -Wextra -pedantic *.cpp -o memoarrr
 
-Run
----
+Run (command):
+-------------
 Windows:  .\memoarrr.exe
 Linux/macOS: ./memoarrr.exe
 
