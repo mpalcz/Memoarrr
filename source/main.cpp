@@ -21,17 +21,17 @@ using namespace std;
 string cleanInput(const string& input) {
     string s = input;
 
-    // 1. Trim leading spaces
+    // Trim any leading spaces
     size_t start = s.find_first_not_of(' ');
     if (start == string::npos)
         return ""; // string was all spaces
     s = s.substr(start);
 
-    // 2. Trim trailing spaces
+    // Trim any trailing spaces
     size_t end = s.find_last_not_of(' ');
     s = s.substr(0, end + 1);
 
-    // 3. Replace multiple internal spaces with single spaces
+    // Replace any multiple internal spaces with single spaces
     ostringstream out;
     bool inSpace = false;
 
@@ -50,13 +50,17 @@ string cleanInput(const string& input) {
     return out.str();
 }
 
-
+// Checks if there are any facedown cards to flip
 bool hasFaceDownCards(const Game& game) {
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
         for (int j = 0; j < GameParameters::BoardSize; ++j) {
             if (i == GameParameters::CenterRow && j == GameParameters::CenterCol) continue;
+            Board::Letter l = Board::getEnumAt<Board::Letter>(i);
+            Board::Number n = Board::getEnumAt<Board::Number>(j);
+            /*
             Board::Letter l = static_cast<Board::Letter>(i);
             Board::Number n = static_cast<Board::Number>(j);
+            */
             if (!game.isFaceUp(l, n)) return true;
         }
     }
@@ -64,7 +68,7 @@ bool hasFaceDownCards(const Game& game) {
 }
 
 int main() {
-    cout << "MEMOARRR!\n\n";
+    cout << "WELCOME TO MEMOARRR!\n\n";
 
     // Get game version from user
     string gameVersion;
@@ -116,12 +120,11 @@ int main() {
 
         game.addPlayer(player);
     }
-    //cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    cout << '\n' << game << endl; // print the starting board
+    cout << '\n' << game; // print the starting board
 
     // MAIN LOOP
     while (!rules.gameOver(game)) {
-        cout << "-------- BEGINNING OF ROUND " << game.getRound() + 1 << " --------\n";
+        cout << "\n-------- BEGINNING OF ROUND " << game.getRound() + 1 << " --------\n";
 
         game.startNewRound(); // face down all cards + activate all players + reset current/previous
 
@@ -176,17 +179,8 @@ int main() {
             for (auto [l, n] : peekCards) game.turnFaceUp(l, n);
             cout << '\n' << game << '\n';
 
-            //cin.clear();
-
             cout << "(press Enter when done)...";
-            //cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cin.get();
-
-
-            /*
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            cin.get();   // Wait exactly once for Enter
-            */
 
             for (auto [l, n] : peekCards) game.turnFaceDown(l, n);
         }
@@ -209,15 +203,35 @@ int main() {
                 continue;
             }
 
-            cout << "Enter card (letter then number): ";
+            string userInput;
+            bool userInputInvalid = true;
+            Board::Letter l;
+            Board::Number n;
+            while (userInputInvalid) {
+                cout << "Enter card - letter then number (ex. \"a1\" or \"B2\"): ";
+                getline(cin, userInput);
+                userInput = cleanInput(userInput);
+                if (userInput.size() !=2 || !(isalpha(userInput[0]) && isdigit(userInput[1]))) {
+                    cout << "Invalid input. Please try again." << endl; 
+                    continue;
+                }
+                try {
+                    char card_letter = toupper(userInput[0]);
+                    int letter_index = card_letter - 'A';
 
-            char card_letter;
-            int card_number;
-            cin >> card_letter >> card_number;
+                    int card_number = userInput[1] - '0';
+                    int number_index = card_number - 1; 
 
-            card_letter = toupper(card_letter);
-            Board::Letter l = static_cast<Board::Letter>(card_letter - 'A');          
-            Board::Number n = static_cast<Board::Number>(card_number - 1);            
+                    l = Board::getEnumAt<Board::Letter>(letter_index);          
+                    n = Board::getEnumAt<Board::Number>(number_index); 
+                } catch (const out_of_range& e) {
+                    cout << "Input must be a number and letter in valid board range: Letter = [A-";
+                    cout << static_cast<char>('A' + GameParameters::BoardSize - 1) << "], Number = [1-";
+                    cout << GameParameters::BoardSize << "]. Please try again." << endl;
+                    continue;
+                }
+                userInputInvalid = false;
+            }
 
             auto blocked = game.getBlockedPosition();
             if (blocked && l == blocked->first && n == blocked->second) {
@@ -237,7 +251,7 @@ int main() {
                 game.setCurrentPosition(l, n);
                 game.setCurrentCard(game.getCard(l, n));
 
-                cout << game << "\n";
+                cout << '\n' << game << '\n';
 
                 // Check match
                 if (game.getPreviousCard() == nullptr) {
@@ -263,8 +277,8 @@ int main() {
             }
         }
 
-        // === Round over - give rubies to the winner ===
-        cout << "\n################ ROUND " << game.getRound() << " OVER ################\n";
+        // Round over - give rubies to the winner ===
+        cout << "\n-------- ROUND " << game.getRound() << " OVER --------\n";
 
         for (Player& p : game.getPlayers()) {                    
             if (p.isActive()) {
@@ -280,6 +294,7 @@ int main() {
                 break;
             }
         }
+        cout << "------------------------------\n";
     }
 
     // === Game over - final results ===
