@@ -125,14 +125,34 @@ std::ostream& operator<<(std::ostream& os, const Board& b) {
                 if (card) {
                     os << (*card)(cardRow);
                 } else {
-                    os << "   ";
+                    os << "   "; // Blank card
                 }
-                if (col < GameParameters::BoardSize - 1) os << ' ';
+                if (col < GameParameters::BoardSize - 1) os << ' '; // space between cards in row
             }
             os << '\n';
         }
-        os << std::string(GameParameters::BoardPadding, '\n');
+        os << '\n';
     }
-    os << std::string(GameParameters::BoardPadding, ' ') << " 1   2   3   4   5\n";
+
+    // construct board bottom margin
+    int sizeOfCard = GameParameters::NumRowsCard;
+    std::string bottomMargin(GameParameters::BoardPadding + 1, ' ');
+
+    for (int i = 1; i <= GameParameters::BoardSize; ++i) {
+        std::string num = std::to_string(i);
+
+        int leftPadding  = (sizeOfCard - num.size()) / 2;
+        int rightPadding = sizeOfCard - leftPadding - num.size();
+
+        std::string belowCard(leftPadding, ' ');
+        belowCard += num;
+        belowCard += std::string(rightPadding, ' ');
+
+        belowCard += std::string(1, ' ');
+
+        bottomMargin += belowCard;
+    }
+    os << bottomMargin << '\n';
+
     return os;
 }

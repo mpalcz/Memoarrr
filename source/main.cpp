@@ -1,5 +1,4 @@
 // main.cpp: Entry point for the Memoarrr game.
-
 #include "Board.h"
 #include "Card.h"
 #include "CardDeck.h"
@@ -19,12 +18,12 @@
 using namespace std;
 
 // Function to clean up name from user input, getting rid of leading and trailing whitespace and replacing multiple spaces with one in between names
-std::string cleanName(const std::string& input) {
-    std::string s = input;
+string cleanInput(const string& input) {
+    string s = input;
 
     // 1. Trim leading spaces
     size_t start = s.find_first_not_of(' ');
-    if (start == std::string::npos)
+    if (start == string::npos)
         return ""; // string was all spaces
     s = s.substr(start);
 
@@ -33,7 +32,7 @@ std::string cleanName(const std::string& input) {
     s = s.substr(0, end + 1);
 
     // 3. Replace multiple internal spaces with single spaces
-    std::ostringstream out;
+    ostringstream out;
     bool inSpace = false;
 
     for (char c : s) {
@@ -67,17 +66,25 @@ bool hasFaceDownCards(const Game& game) {
 int main() {
     cout << "MEMOARRR!\n\n";
 
-    // get game version
+    // Get game version from user
     string gameVersion;
-    cout << "Choose game version (base/expert_display/expert_rules/both): ";
-    cin >> gameVersion;
+    const array<string, 4> validVersions = {"base", "expert display", "expert rules", "both"};
 
-    bool expertDisplay = (gameVersion == "expert_display" || gameVersion == "both");
-    bool expertRules = (gameVersion == "expert_rules" || gameVersion == "both");
+    bool gameVersionAttempted = false;
+    do {
+        if (gameVersionAttempted) cout << "Invalid input. Please try again." << endl;
+        cout << "Choose game version (base/expert display/expert rules/both): ";
+        getline(cin, gameVersion);
+        gameVersion = cleanInput(gameVersion);
+        gameVersionAttempted = true;
+    } while (find(validVersions.begin(), validVersions.end(), gameVersion) == validVersions.end());
 
-    // get number of players
+    bool expertDisplay = (gameVersion == "expert display" || gameVersion == "both");
+    bool expertRules = (gameVersion == "expert rules" || gameVersion == "both");
+
+    // get number of players /// may need to edit so that it continuously reprompts 
     int num_players;
-    cout << "Enter the number of Players (2-4): ";
+    cout << "Enter the number of Players [2-4]: ";
     cin >> num_players;
     while (num_players < 2 || num_players > 4) {
         cout << "Invalid, please enter 2-4 players: ";
@@ -85,37 +92,94 @@ int main() {
     }
 
     // clear leftover newline
-    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
+    // Initialize game instances to run Memoarrr
     Game game(expertDisplay, expertRules);
     Rules rules;
     RubisDeck& rubisDeck = RubisDeck::make_RubisDeck();
 
+    vector<string> playerNames;
+    string name;
     for (int i = 0; i < num_players; ++i) {
-        string name;
+        bool playerNameAttempted = false;
+        while (name.empty() || find(playerNames.begin(), playerNames.end(), name) != playerNames.end()) {
+            if (playerNameAttempted && name.empty()) cout << "Invalid input, please enter a name." << endl;
+            else if (playerNameAttempted) cout << "Player name already exists. Please enter a new player name." << endl;
+            cout << "Enter Player " << i + 1 << " name: ";
+            getline(cin, name);
+            name = cleanInput(name);
+            playerNameAttempted = true;
+        }
+        /*
         cout << "Enter Player " << i + 1 << " name: ";
-        std::string rawName;
-        std::getline(cin, rawName);
-        std::string cleanPlayerName = cleanName(rawName);
+        getline(cin, name);
+        string cleanPlayerName = cleanInput(rawName);
+        */
 
-        Player player(cleanPlayerName, static_cast<Player::Side>(i));
+        //Player player(name, static_cast<Player::Side>(i));
+        playerNames.push_back(name);
+        Player player(name, Board::getEnumAt<Player::Side>(i));
+
         game.addPlayer(player);
     }
 
-    cout << game << endl;
+    cout << '\n' << game << endl; // print the starting board
 
     // MAIN LOOP
     while (!rules.gameOver(game)) {
-        cout << "\n####### BEGINNING OF ROUND " << game.getRound() + 1 << " #######\n";
+        cout << "-------- BEGINNING OF ROUND " << game.getRound() + 1 << " --------\n";
 
         game.startNewRound(); // face down all cards + activate all players + reset current/previous
 
-        // === Temporarily reveal 3 cards directly in front of each player ===
+        //  Temporarily reveal 3 cards directly in front of each player
         for (const Player& p : game.getPlayers()) {                    
-            cout << "\n" << p.getName() << ", look at your 3 secret cards (press Enter when done):\n";
+            cout << "\n" << p.getName() << ", look at your 3 secret cards:\n";
 
             vector<pair<Board::Letter, Board::Number>> peekCards;
+            Player::Side playerSide = p.getSide();
+            int middlepos = GameParameters::BoardSize / 2;
 
+            switch (playerSide) {
+                case Player::Side::top: {
+                    Board::Letter row = Board::getEnumAt<Board::Letter>(0);
+                    peekCards = {
+                        {row, Board::getEnumAt<Board::Number>(middlepos-1)}, 
+                        {row, Board::getEnumAt<Board::Number>(middlepos)}, 
+                        {row, Board::getEnumAt<Board::Number>(middlepos+1)}
+                    };
+                    break;
+                } 
+                case Player::Side::bottom: {
+                    Board::Letter row = Board::getEnumAt<Board::Letter>(GameParameters::BoardSize - 1);
+                    peekCards = {
+                        {row, Board::getEnumAt<Board::Number>(middlepos-1)}, 
+                        {row, Board::getEnumAt<Board::Number>(middlepos)}, 
+                        {row, Board::getEnumAt<Board::Number>(middlepos+1)}
+                    };
+                    break;
+                } 
+                case Player::Side::left: {
+                    Board::Number col = Board::getEnumAt<Board::Number>(0);
+                    peekCards = {
+                        {Board::getEnumAt<Board::Letter>(middlepos-1), col}, 
+                        {Board::getEnumAt<Board::Letter>(middlepos), col}, 
+                        {Board::getEnumAt<Board::Letter>(middlepos+1), col}
+                    };
+                    break;
+                }
+                case Player::Side::right: {
+                    Board::Number col = Board::getEnumAt<Board::Number>(GameParameters::BoardSize - 1);
+                    peekCards = {
+                        {Board::getEnumAt<Board::Letter>(middlepos-1), col}, 
+                        {Board::getEnumAt<Board::Letter>(middlepos), col}, 
+                        {Board::getEnumAt<Board::Letter>(middlepos+1), col}
+                    };
+                    break;
+                }
+            }
+            
+            /*
             if (p.getSide() == Player::Side::top) {
                 Board::Letter row = Board::Letter::A;
                 peekCards = {{row, Board::Number::Two}, {row, Board::Number::Three}, {row, Board::Number::Four}};
@@ -129,12 +193,13 @@ int main() {
                 Board::Number col = Board::Number::Five;
                 peekCards = {{Board::Letter::B, col}, {Board::Letter::C, col}, {Board::Letter::D, col}};
             }
+            */
 
             for (auto [l, n] : peekCards) game.turnFaceUp(l, n);
-            cout << game << "\n";
+            cout << '\n' << game << '\n';
 
             cin.clear();
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
             cout << "(press Enter when done)...";
             cin.get();
@@ -148,7 +213,7 @@ int main() {
             for (auto [l, n] : peekCards) game.turnFaceDown(l, n);
         }
 
-        // === Round play ===
+        // Round play
         while (!rules.roundOver(game)) {
             Player& currentPlayer = game.getCurrentPlayer();
 

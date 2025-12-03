@@ -13,7 +13,7 @@ namespace GameParameters {
     inline constexpr int CenterRow = BoardSize / 2; // 2
     inline constexpr int CenterCol = BoardSize / 2; // 2
     inline constexpr std::tuple<int, int> CenterPosition(CenterRow, CenterCol);
-    inline constexpr int BoardPadding = 1; // Spacing between each row of cards and between the Margins (spec says one character and row)
+    inline constexpr int BoardPadding = 3; // Spacing between each row of cards and between the Margins (spec says one character and row)
 
     // Game play parameters
     inline constexpr int NumberOfRounds = 7;
