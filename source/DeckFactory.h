@@ -1,4 +1,5 @@
 // DeckFactory.h: Template class for creating decks of cards or rubis.
+
 #ifndef DECKFACTORY_H
 #define DECKFACTORY_H
 
@@ -15,12 +16,11 @@ template<typename C> class DeckFactory {
     virtual ~DeckFactory() { for (auto p : deck) delete p; }
 
     void shuffle() {
-        auto seed = std::chrono::system_clock::now().time_since_epoch().count(); // MAY NEED TO CHANGE!!!!!!!!!
+        auto seed = std::chrono::system_clock::now().time_since_epoch().count();
         std::shuffle(deck.begin(), deck.end(), std::default_random_engine(seed));
-        pos = 0;
     }
 
-    C* getNext() { 
+    C* getNext() {
       if (deck.empty()) return nullptr;
       C* c = deck.back();
       deck.pop_back();

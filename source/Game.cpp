@@ -1,4 +1,5 @@
-// Game.cpp
+// Game.cpp: Implements the Game class for managing game state.
+
 #include "Game.h"
 #include <algorithm>
 

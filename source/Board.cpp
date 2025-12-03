@@ -9,7 +9,7 @@
 // Throws: OutOfRange if invalid.
 void Board::validatePosition(const Letter &l, const Number &n) const {
     int row = toIndex<Board::Letter>(l), column = toIndex<Board::Number>(n);
-    if (row < 0 || row >= GameParameters::BoardSize || column < 0 || column >= GameParameters::BoardSize 
+    if (row < 0 || row >= GameParameters::BoardSize || column < 0 || column >= GameParameters::BoardSize
         || (row == GameParameters::CenterRow && column == GameParameters::CenterCol)) {
         throw OutOfRange();
     }
@@ -22,7 +22,7 @@ Board::Board() {
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
         for (int j = 0; j < GameParameters::BoardSize; ++j) {
             if (i == GameParameters::CenterRow && j == GameParameters::CenterCol) {
-                board[i][j] = nullptr; // blank center ????????????????????????????????????????????????
+                board[i][j] = nullptr; // blank center
             } else {
                 board[i][j] = boardDeck.getNext();
                 if (!board[i][j]) throw NoMoreCards();
@@ -45,9 +45,9 @@ Board::~Board() {
 // Returns: boolean indicating if the card is faced up
 // Throws: OutOfRange if parameters are invalid.
 bool Board::isFaceUp(const Letter &l, const Number &n) const {
+    validatePosition(l, n);
     return getCard(l, n)->isFaceUp();
 }
-
 
 // Gets the card at a position (non-const version).
 // Params: l (Letter), n (Number).
@@ -72,6 +72,7 @@ const Card *Board::getCard(const Letter &l, const Number &n) const {
 // Returns: true if flipped, false if already up.
 // Throws: OutOfRange if invalid.
 bool Board::turnFaceUp(const Letter &l, const Number &n) {
+    validatePosition(l, n);
     Card *card = getCard(l, n);
     if (card->isFaceUp()) return false;
     card->turnFaceUp();
@@ -83,6 +84,7 @@ bool Board::turnFaceUp(const Letter &l, const Number &n) {
 // Returns: true if flipped, false if already down.
 // Throws: OutOfRange if invalid.
 bool Board::turnFaceDown(const Letter &l, const Number &n) {
+    validatePosition(l, n);
     Card *card = getCard(l, n);
     if (!card->isFaceUp()) return false;
     card->turnFaceDown();
@@ -93,7 +95,6 @@ bool Board::turnFaceDown(const Letter &l, const Number &n) {
 // Params: l (Letter), n (Number), c (pointer to Card).
 // Throws: OutOfRange if invalid.
 void Board::setCard(const Letter &l, const Number &n, Card *c) {
-    // Verify if card is nullptr ????????????????DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
     validatePosition(l, n);
     int row = toIndex<Letter>(l), column = toIndex<Number>(n);
     delete board[row][column];
@@ -104,7 +105,7 @@ void Board::setCard(const Letter &l, const Number &n, Card *c) {
 void Board::allFacesDown() {
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
         for (int j = 0; j < GameParameters::BoardSize; ++j) {
-            if (!(i == GameParameters::CenterRow && j == GameParameters::CenterCol)) {
+            if (board[i][j]) {
                 board[i][j]->turnFaceDown();
             }
         }
@@ -114,19 +115,19 @@ void Board::allFacesDown() {
 // Prints the board line by line.
 // Params: os (output stream), b (const Board).
 // Returns: os for chaining.
-// MAY NEED TO FIX
 std::ostream& operator<<(std::ostream& os, const Board& b) {
     for (int row = 0; row < GameParameters::BoardSize; ++row) {
         for (int cardRow = 0; cardRow < GameParameters::NumRowsCard; ++cardRow) {
             os << ((cardRow == GameParameters::NumRowsCard/2) ? std::string(1, 'A' + row) : " ");
             os << std::string(GameParameters::BoardPadding, ' ');
             for (int col = 0; col < GameParameters::BoardSize; ++col) {
-                if (b.board[row][col]) {
-                    os << (*b.board[row][col]) (cardRow);
+                const Card* card = b.board[row][col];
+                if (card) {
+                    os << (*card)(cardRow);
                 } else {
                     os << "   ";
-                if (col < GameParameters::BoardSize - 1) os << ' ';
                 }
+                if (col < GameParameters::BoardSize - 1) os << ' ';
             }
             os << '\n';
         }

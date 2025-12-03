@@ -1,4 +1,5 @@
-// main.cpp
+// main.cpp: Entry point for the Memoarrr game.
+
 #include "Board.h"
 #include "Card.h"
 #include "CardDeck.h"
@@ -12,9 +13,44 @@
 #include <algorithm>
 #include <cctype>
 #include <vector>
-#include <string>
+#include <limits>
+#include <sstream>
 
 using namespace std;
+
+// Function to clean up name from user input, getting rid of leading and trailing whitespace and replacing multiple spaces with one in between names
+std::string cleanName(const std::string& input) {
+    std::string s = input;
+
+    // 1. Trim leading spaces
+    size_t start = s.find_first_not_of(' ');
+    if (start == std::string::npos)
+        return ""; // string was all spaces
+    s = s.substr(start);
+
+    // 2. Trim trailing spaces
+    size_t end = s.find_last_not_of(' ');
+    s = s.substr(0, end + 1);
+
+    // 3. Replace multiple internal spaces with single spaces
+    std::ostringstream out;
+    bool inSpace = false;
+
+    for (char c : s) {
+        if (c == ' ') {
+            if (!inSpace) {
+                out << ' ';
+                inSpace = true;
+            }
+        } else {
+            out << c;
+            inSpace = false;
+        }
+    }
+
+    return out.str();
+}
+
 
 bool hasFaceDownCards(const Game& game) {
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
@@ -48,6 +84,9 @@ int main() {
         cin >> num_players;
     }
 
+    // clear leftover newline
+    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
     Game game(expertDisplay, expertRules);
     Rules rules;
     RubisDeck& rubisDeck = RubisDeck::make_RubisDeck();
@@ -55,8 +94,11 @@ int main() {
     for (int i = 0; i < num_players; ++i) {
         string name;
         cout << "Enter Player " << i + 1 << " name: ";
-        cin >> name;
-        Player player(name, static_cast<Player::Side>(i));
+        std::string rawName;
+        std::getline(cin, rawName);
+        std::string cleanPlayerName = cleanName(rawName);
+
+        Player player(cleanPlayerName, static_cast<Player::Side>(i));
         game.addPlayer(player);
     }
 
@@ -90,8 +132,18 @@ int main() {
 
             for (auto [l, n] : peekCards) game.turnFaceUp(l, n);
             cout << game << "\n";
-            cin.ignore();
-            cin.get(); // wait for Enter
+
+            cin.clear();
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            cout << "(press Enter when done)...";
+            cin.get();
+
+
+            /*
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            cin.get();   // Wait exactly once for Enter
+            */
 
             for (auto [l, n] : peekCards) game.turnFaceDown(l, n);
         }
@@ -125,7 +177,7 @@ int main() {
             Board::Number n = static_cast<Board::Number>(card_number - 1);            
 
             auto blocked = game.getBlockedPosition();
-            if (l == blocked.first && n == blocked.second) {
+            if (blocked && l == blocked->first && n == blocked->second) {
                 cout << "Blocked position - choose another!\n";
                 continue;
             }
@@ -145,7 +197,9 @@ int main() {
                 cout << game << "\n";
 
                 // Check match
-                if (!rules.isValid(game)) {
+                if (game.getPreviousCard() == nullptr) {
+                    cout << "First card flipped!\n";
+                } else if (!rules.isValid(game)) {
                     cout << "No match! " << currentPlayer.getName() << " is out this round.\n";
                     game.turnFaceDown(l, n);
                     currentPlayer.setActive(false);
@@ -157,6 +211,7 @@ int main() {
                 }
 
                 if (!game.getExtraTurn()) game.nextPlayer();
+                game.setExtraTurn(false); // Reset after potential extra turn
 
             } catch (const OutOfRange&) {                    
                 cout << "Invalid position - you are out this round!\n";

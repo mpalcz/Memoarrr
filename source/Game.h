@@ -8,23 +8,24 @@
 #include <vector>
 #include <cstddef>
 #include <utility>
+#include <optional>
 
 class Game {
 private:
     Board board;
     std::vector<Player> players;
     int round = 0;
-    Card* previousCard = nullptr;
-    Card* currentCard = nullptr;
+    const Card* previousCard = nullptr;
+    const Card* currentCard  = nullptr;
     size_t currentPlayerIdx = 0;
-    bool expertDisplayMode;
-    bool expertRulesMode;
+    bool expertDisplayMode = false;
+    bool expertRulesMode = false;
     bool extraTurn = false;
-    std::pair<Board::Letter, Board::Number> currentPosition;
-    std::pair<Board::Letter, Board::Number> blockedPosition = {Board::Letter::A, Board::Number::One}; // Invalid initial
+    std::pair<Board::Letter, Board::Number> currentPosition = {Board::Letter::A, Board::Number::One};
+    std::optional<std::pair<Board::Letter, Board::Number>> blockedPosition; // Invalid initial (before walrus is in effect)
 
 public:
-    Game(bool ed = false, bool er = false) : expertDisplayMode(ed), expertRulesMode(er) {}
+    Game(bool ed = false, bool er = false) : expertDisplayMode(ed), expertRulesMode(er), blockedPosition(std::nullopt) {}
 
     int getRound() const { return round; }
 
@@ -35,7 +36,7 @@ public:
 
     const Card* getPreviousCard() const { return previousCard; }
     const Card* getCurrentCard() const { return currentCard; }
-    void setCurrentCard(const Card* c) { previousCard = currentCard; currentCard = const_cast<Card*>(c); }
+    void setCurrentCard(const Card* c) { previousCard = currentCard; currentCard = c; }
 
     Card* getCard(Board::Letter l, Board::Number n) { return board.getCard(l, n); }
     const Card* getCard(Board::Letter l, Board::Number n) const { return board.getCard(l, n); }
@@ -59,7 +60,7 @@ public:
         for (auto& p : players) p.setActive(true);
         previousCard = currentCard = nullptr;
         currentPlayerIdx = 0;
-        blockedPosition = {Board::Letter::A, Board::Number::One}; // Reset
+        blockedPosition = std::nullopt; // Reset ??????????????????????????????????????
     }
 
     std::vector<Player>& getPlayers() { return players; }
@@ -71,7 +72,7 @@ public:
     void setCurrentPosition(Board::Letter l, Board::Number n) { currentPosition = {l, n}; }
     std::pair<Board::Letter, Board::Number> getCurrentPosition() const { return currentPosition; }
     void setBlockedPosition(Board::Letter l, Board::Number n) { blockedPosition = {l, n}; }
-    std::pair<Board::Letter, Board::Number> getBlockedPosition() const { return blockedPosition; }
+    std::optional<std::pair<Board::Letter, Board::Number>> getBlockedPosition() const { return blockedPosition; } // rename the type???
 
     friend std::ostream& operator<<(std::ostream& os, const Game& g);
 };

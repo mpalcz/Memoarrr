@@ -1,3 +1,4 @@
+// Card.h
 #ifndef CARD_H
 #define CARD_H
 
@@ -7,18 +8,17 @@
 
 // Forward declarations
 class CardDeck;
+class Board;
 class Game;
 
 class Card {
   friend class CardDeck;
+  friend class Board; // So Board can construct blank card
 
   public:
     // Card Enums
     enum class FaceAnimal { Crab, Penguin, Octopus, Turtle, Walrus };
     enum class FaceBackground { Red, Green, Purple, Blue, Yellow };
-
-  protected: // Protected for potential derived classes in expert mode (MAY NEED TO CHANGE)
-    Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {}
 
   private:
     // Instance variables
@@ -27,9 +27,12 @@ class Card {
     bool faceUp = false;
 
     // Constructors
-    //Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {} // private constructor !!!!!!!!!!!!!!!!!!! MAY NEED TO REIMPLEMENT
-
+  protected:
+    Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {} // private constructor
+   
   public:
+    virtual ~Card() = default; // virtual destructor
+
     // Conversion operators
     operator FaceAnimal() const { return animal; }
     operator FaceBackground() const { return background; }
@@ -44,7 +47,7 @@ class Card {
     static constexpr int getNRows() { return GameParameters::NumRowsCard; }
 
     // For expert modes
-    virtual void applyEffect(Game& g) const {}
+    virtual void applyEffect(Game&) const {}
 
     // make Card "printable"
     friend std::ostream &operator<<(std::ostream &os, const Card &c);

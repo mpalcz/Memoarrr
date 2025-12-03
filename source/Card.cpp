@@ -33,7 +33,7 @@ static char backgroundLetter(Card::FaceBackground b) {
 /*############## CLASS DEFINITIONS ##################*/
 
 std::string Card::operator()(int row) const {
-    if (!faceUp) return "zzz"; // IS THIS NECESSARY???????????????
+    if (!faceUp) return "zzz";
 
     // Card is square shaped (thus NumColumnsCard = NumRowsCard)
     std::string s(GameParameters::NumRowsCard, backgroundLetter(background));
