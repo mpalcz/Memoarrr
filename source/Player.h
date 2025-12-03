@@ -18,14 +18,14 @@ class Player {
     Player() : name(""), side(Side::top) {} // default constructor (may need to delete or change)
 
     // Public interface (inline functions)
-    const std::string& getName() const { return name; }; // should it return const string or string
-    void setActive(bool newStatus) { active = newStatus; };
-    bool isActive() const { return active; };
-    int getNRubies() const { return numRubies; };
+    const std::string& getName() const { return name; } // should it return const string or string
+    void setActive(bool newStatus) { active = newStatus; }
+    bool isActive() const { return active; }
+    int getNRubies() const { return numRubies; }
     void addRubis(const Rubis &rubisToAdd);
-    void setDisplayMode(bool endOfGame) { endOfGameDisplay = endOfGame; };
-    Side getSide() const { return side; };
-    void setSide(Side newSide) { side = newSide; };
+    void setDisplayMode(bool endOfGame) { endOfGameDisplay = endOfGame; }
+    Side getSide() const { return side; }
+    void setSide(Side newSide) { side = newSide; }
 
     // Getters and setters
     std::string sideToString() const;

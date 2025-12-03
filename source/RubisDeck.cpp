@@ -2,8 +2,9 @@
 
 #include "Rubis.h"
 #include "RubisDeck.h"
+#include "GameParameters.h"
+
 #include <vector>
-#include <GameParameters.h>
 
 // constructor
 RubisDeck::RubisDeck() {

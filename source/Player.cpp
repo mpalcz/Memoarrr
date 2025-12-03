@@ -5,12 +5,14 @@
 
 void Player::addRubis(const Rubis &rubisToAdd) { numRubies += int(rubisToAdd); };
 
+/*
 // Toggles display mode for end-of-game rubis reveal.
 // Params: endOfGame (bool).
 // Result: Sets endOfGameDisplay flag.
 void Player::setDisplayMode(bool endOfGame) {
     endOfGameDisplay = endOfGame;
 }
+*/
 
 // Converts Side enum to string for printing.
 // Returns: String like "left".
