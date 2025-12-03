@@ -22,7 +22,7 @@ class Board {
     void validatePosition(const Letter&, const Number&) const;
 
   public:
-    
+   
     // Constructor
     Board();
 

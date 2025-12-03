@@ -1,3 +1,5 @@
+// DeckFactory.h: Template class for creating decks of cards or rubis.
+
 #ifndef DECKFACTORY_H
 #define DECKFACTORY_H
 

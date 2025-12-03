@@ -1,6 +1,8 @@
-#include <Card.h>
-#include <CardDeck.h>
-#include <GameParameters.h>
+// CardDeck.cpp: Implements the CardDeck class for creating and managing a deck of cards.
+
+#include "Card.h"
+#include "CardDeck.h"
+#include "GameParameters.h"
 
 CardDeck::CardDeck() {
     for (int animalIdx = 0; animalIdx < GameParameters::NumAnimals; ++animalIdx) {

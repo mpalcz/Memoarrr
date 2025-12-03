@@ -1,3 +1,5 @@
+// main.cpp: Entry point for the Memoarrr game.
+
 #include "Board.h"
 #include "Card.h"
 #include "CardDeck.h"
@@ -11,11 +13,32 @@
 #include <algorithm>
 #include <cctype>
 #include <vector>
+#include <string>
 
 using namespace std;
 
+bool hasFaceDownCards(const Game& game) {
+    for (int i = 0; i < GameParameters::BoardSize; ++i) {
+        for (int j = 0; j < GameParameters::BoardSize; ++j) {
+            if (i == GameParameters::CenterRow && j == GameParameters::CenterCol) continue;
+            Board::Letter l = static_cast<Board::Letter>(i);
+            Board::Number n = static_cast<Board::Number>(j);
+            if (!game.getBoard().isFaceUp(l, n)) return true;
+        }
+    }
+    return false;
+}
+
 int main() {
-    cout << "MEMORARRRRRRRRRRRRRRRR!!\n\n";
+    cout << "MEMOARRR!\n\n";
+
+    // get game version
+    string gameVersion;
+    cout << "Choose game version (base/expert_display/expert_rules/both): ";
+    cin >> gameVersion;
+
+    bool expertDisplay = (gameVersion == "expert_display" || gameVersion == "both");
+    bool expertRules = (gameVersion == "expert_rules" || gameVersion == "both");
 
     // get number of players
     int num_players;
@@ -47,17 +70,17 @@ int main() {
         game.startNewRound(); // face down all cards + activate all players + reset current/previous
 
         // === Temporarily reveal 3 cards directly in front of each player ===
-        for (const Player& p : game.getPlayers()) {                    // const is fine here
+        for (const Player& p : game.getPlayers()) {                    
             cout << "\n" << p.getName() << ", look at your 3 secret cards (press Enter when done):\n";
 
             vector<pair<Board::Letter, Board::Number>> peekCards;
 
             if (p.getSide() == Player::Side::top) {
                 Board::Letter row = Board::Letter::A;
-                peekCards = {{row, Board::Number::Two}, {row, Board::Number::Three}, {row, Board::Number::Four}};
+                peekCards = {{row, Board::Number::One}, {row, Board::Number::Two}, {row, Board::Number::Three}};
             } else if (p.getSide() == Player::Side::bottom) {
                 Board::Letter row = Board::Letter::E;
-                peekCards = {{row, Board::Number::Two}, {row, Board::Number::Three}, {row, Board::Number::Four}};
+                peekCards = {{row, Board::Number::Three}, {row, Board::Number::Four}, {row, Board::Number::Five}};
             } else if (p.getSide() == Player::Side::left) {
                 Board::Number col = Board::Number::One;
                 peekCards = {{Board::Letter::B, col}, {Board::Letter::C, col}, {Board::Letter::D, col}};
@@ -85,6 +108,13 @@ int main() {
             }
 
             cout << "\nTurn: " << currentPlayer.getName() << "\n";
+            if (!hasFaceDownCards(game)) {
+                cout << "No more cards to flip - you lose this turn!\n";
+                currentPlayer.setActive(false);
+                game.nextPlayer();
+                continue;
+            }
+
             cout << "Enter card (letter then number): ";
 
             char card_letter;
@@ -92,14 +122,15 @@ int main() {
             cin >> card_letter >> card_number;
 
             card_letter = toupper(card_letter);
-            Board::Letter l = static_cast<Board::Letter>(card_letter - 'A');           // A → 0, B → 1, ...
-            Board::Number n = static_cast<Board::Number>(card_number - 1);             // 1 → one, 2 → two, ...
+            Board::Letter l = static_cast<Board::Letter>(card_letter - 'A');          
+            Board::Number n = static_cast<Board::Number>(card_number - 1);            
 
             try {
                 // Flip the card
                 if (!game.turnFaceUp(l, n)) {
-                    cout << "Card already face up or invalid → you are out this round!\n";
+                    cout << "Card already face up or invalid - you are out this round!\n";
                     currentPlayer.setActive(false);
+                    game.nextPlayer();
                     continue;
                 }
 
@@ -108,37 +139,38 @@ int main() {
 
                 cout << game.getBoard() << "\n";
 
-                // First card of the round → free second turn
-                if (game.getPreviousCard() == nullptr) {
-                    cout << "First card of the round - choose another card!\n";
-                    continue;
-                }
-
                 // Check match
                 if (!rules.isValid(game)) {
                     cout << "No match! " << currentPlayer.getName() << " is out this round.\n";
                     game.turnFaceDown(l, n);
                     currentPlayer.setActive(false);
                 } else {
-                    cout << "Match! Play again!\n";
+                    cout << "Match! \n";
+                    // Apply expert effect if enabled
+                    if (expertRules) {
+                        // To implement: flippedCard->applyEffect(game);
+                    }
                 }
 
-            } catch (const OutOfRange&) {                     // ← now compiles
-                cout << "Invalid position → you are out this round!\n";
+                game.nextPlayer();
+
+            } catch (const OutOfRange&) {                    
+                cout << "Invalid position - you are out this round!\n";
                 currentPlayer.setActive(false);
+                game.nextPlayer();
             }
         }
 
-        // === Round over - give rubies to the winner ===
+        // === Round over - give rubis to the winner ===
         cout << "\n################ ROUND " << game.getRound() << " OVER ################\n";
 
-        for (Player& p : game.getPlayers()) {                     // ← non-const version needed
+        for (Player& p : game.getPlayers()) {                    
             if (p.isActive()) {
                 cout << p.getName() << " wins the round!\n";
 
                 Rubis* r = rubisDeck.getNext();
                 if (!r) {
-                    cout << "No more rubies!\n";
+                    cout << "No more rubis!\n";
                 } else {
                     p.addRubis(*r);
                     cout << p.getName() << " receives " << *r << "\n";
@@ -153,14 +185,14 @@ int main() {
     cout << "##################### GAME OVER #########################\n";
     cout << "#########################################################\n\n";
 
-    // Show scores sorted from least to most rubies
-    vector<Player> finalStandings = game.getPlayers();        // copy
+    // Show scores sorted from least to most rubis
+    vector<Player> finalStandings = game.getPlayers();        
     sort(finalStandings.begin(), finalStandings.end(),
          [](const Player& a, const Player& b) { return a.getNRubies() < b.getNRubies(); });
 
     for (Player& p : finalStandings) p.setDisplayMode(true);
 
-    cout << "Final scores (least → most rubies):\n";
+    cout << "Final scores (least to most rubis):\n";
     for (const Player& p : finalStandings) {
         cout << p << "\n";
     }

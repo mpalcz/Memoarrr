@@ -1,5 +1,7 @@
+// Rules.cpp: Implements the Rules class for validating game moves.
+
 #include "Rules.h"
-#include "Card.h" 
+#include "Card.h"
 #include "GameParameters.h"
 
 bool Rules::isValid(const Game &g) const{

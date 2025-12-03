@@ -53,6 +53,7 @@ class Game {
         }
 
         std::vector<Player>& getPlayers() { return players; }
+        const std::vector<Player>& getPlayers() const { return players; }
 
         friend std::ostream& operator<<(std::ostream& os, const Game& g);
 };

@@ -1,3 +1,5 @@
+// Exceptions.h: Custom exceptions for the game.
+
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
 

@@ -1,5 +1,7 @@
-#include <Rubis.h>
-#include <RubisDeck.h>
+// RubisDeck.cpp: Implements the RubisDeck class for creating and managing a deck of rubis.
+
+#include "Rubis.h"
+#include "RubisDeck.h"
 #include <vector>
 #include <GameParameters.h>
 

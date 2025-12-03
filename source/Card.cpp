@@ -1,11 +1,10 @@
+// Card.cpp: Implements the Card class for representing game cards with animals and backgrounds.
+
 #include "Card.h"
 
-/*
-############## ENUM HELPERS ##################
-map enums to chars for output
-make these static for encapsulation within this file
-*/
-
+// Helper: Maps FaceAnimal enum to char for printing.
+// Params: a (FaceAnimal).
+// Returns: Char representation.
 static char animalLetter(Card::FaceAnimal a) {
     switch (a) {
     case Card::FaceAnimal::Crab: return 'C';
@@ -17,6 +16,9 @@ static char animalLetter(Card::FaceAnimal a) {
     }
 }
 
+// Helper: Maps FaceBackground enum to char for printing.
+// Params: b (FaceBackground).
+// Returns: Char representation.
 static char backgroundLetter(Card::FaceBackground b) {
     switch (b) {
     case Card::FaceBackground::Red: return 'r';
@@ -31,7 +33,7 @@ static char backgroundLetter(Card::FaceBackground b) {
 /*############## CLASS DEFINITIONS ##################*/
 
 std::string Card::operator()(int row) const {
-    if (isBlank) return "   ";
+    if (isBlank()) return "   ";
     if (!faceUp) return "zzz";
 
     // Card is square shaped (thus NumColumnsCard = NumRowsCard)
@@ -42,6 +44,6 @@ std::string Card::operator()(int row) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Card& c) {
-    for (int row = 0; row < c.getNRows(); ++row) os << c(row) << '\n';
+    for (int row = 0; row < c.getNRows(); ++row) os << c(row) << std::endl;
     return os;
 }

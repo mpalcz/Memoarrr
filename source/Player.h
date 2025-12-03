@@ -22,7 +22,7 @@ class Player {
     void setActive(bool newStatus) { active = newStatus; };
     bool isActive() const { return active; };
     int getNRubies() const { return numRubies; };
-    void addRubis(const Rubis &rubisToAdd) { numRubies += int(rubisToAdd); };
+    void addRubis(const Rubis &rubisToAdd);
     void setDisplayMode(bool endOfGame) { endOfGameDisplay = endOfGame; };
     Side getSide() const { return side; };
     void setSide(Side newSide) { side = newSide; };

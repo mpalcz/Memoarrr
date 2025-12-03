@@ -25,10 +25,10 @@ class Card {
     bool faceUp = false;
     bool blank = false;
 
-    // Constructors 
+    // Constructors
     Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {} // private constructor
     Card() : blank(true) {}             // center empty card
-    
+   
     //static constexpr int numRows = 3; // might need to change for expert levelgames but for now cards are always 3 rows
 
   public:
