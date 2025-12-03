@@ -111,19 +111,12 @@ int main() {
             name = cleanInput(name);
             playerNameAttempted = true;
         }
-        /*
-        cout << "Enter Player " << i + 1 << " name: ";
-        getline(cin, name);
-        string cleanPlayerName = cleanInput(rawName);
-        */
-
-        //Player player(name, static_cast<Player::Side>(i));
         playerNames.push_back(name);
         Player player(name, Board::getEnumAt<Player::Side>(i));
 
         game.addPlayer(player);
     }
-
+    //cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     cout << '\n' << game << endl; // print the starting board
 
     // MAIN LOOP
@@ -178,30 +171,15 @@ int main() {
                     break;
                 }
             }
-            
-            /*
-            if (p.getSide() == Player::Side::top) {
-                Board::Letter row = Board::Letter::A;
-                peekCards = {{row, Board::Number::Two}, {row, Board::Number::Three}, {row, Board::Number::Four}};
-            } else if (p.getSide() == Player::Side::bottom) {
-                Board::Letter row = Board::Letter::E;
-                peekCards = {{row, Board::Number::Two}, {row, Board::Number::Three}, {row, Board::Number::Four}};
-            } else if (p.getSide() == Player::Side::left) {
-                Board::Number col = Board::Number::One;
-                peekCards = {{Board::Letter::B, col}, {Board::Letter::C, col}, {Board::Letter::D, col}};
-            } else if (p.getSide() == Player::Side::right) {
-                Board::Number col = Board::Number::Five;
-                peekCards = {{Board::Letter::B, col}, {Board::Letter::C, col}, {Board::Letter::D, col}};
-            }
-            */
+    
 
             for (auto [l, n] : peekCards) game.turnFaceUp(l, n);
             cout << '\n' << game << '\n';
 
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            //cin.clear();
 
             cout << "(press Enter when done)...";
+            //cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cin.get();
 
 
