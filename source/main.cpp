@@ -73,8 +73,8 @@ int main() {
     // Get game version from user
     string gameVersion;
     const array<string, 4> validVersions = {"base", "expert display", "expert rules", "both"};
-
     bool gameVersionAttempted = false;
+
     do {
         if (gameVersionAttempted) cout << "Invalid input. Please try again." << endl;
         cout << "Choose game version (base/expert display/expert rules/both): ";
@@ -86,17 +86,20 @@ int main() {
     bool expertDisplay = (gameVersion == "expert display" || gameVersion == "both");
     bool expertRules = (gameVersion == "expert rules" || gameVersion == "both");
 
-    // get number of players /// may need to edit so that it continuously reprompts 
+    // Get number of players from user 
     int num_players;
-    cout << "Enter the number of Players [2-4]: ";
-    cin >> num_players;
-    while (num_players < 2 || num_players > 4) {
-        cout << "Invalid, please enter 2-4 players: ";
-        cin >> num_players;
-    }
+    string num_players_string;
+    bool numPlayersAttempted = false;
 
-    // clear leftover newline
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    do {
+        if (numPlayersAttempted) cout << "Invalid input. Please try again." << endl;
+        cout << "Enter the number of Players [2-4]: ";
+        getline(cin, num_players_string);
+        num_players_string = cleanInput(num_players_string);
+        numPlayersAttempted = true;
+    } while (num_players_string.size() != 1 || !(num_players_string == "2" || num_players_string == "3" || num_players_string == "4"));
+
+    num_players = stoi(num_players_string);
 
     // Initialize game instances to run Memoarrr
     Game game(expertDisplay, expertRules);
@@ -180,7 +183,9 @@ int main() {
             cout << '\n' << game << '\n';
 
             cout << "(press Enter when done)...";
-            cin.get();
+            string dummy;
+            getline(cin, dummy);
+            //cin.get();
 
             for (auto [l, n] : peekCards) game.turnFaceDown(l, n);
         }
@@ -302,19 +307,19 @@ int main() {
     cout << "##################### GAME OVER #########################\n";
     cout << "#########################################################\n\n";
 
-    // Show scores sorted from least to most rubies
+    // Show scores sorted from most to least rubies
     vector<Player> finalStandings = game.getPlayers();        
     sort(finalStandings.begin(), finalStandings.end(),
-         [](const Player& a, const Player& b) { return a.getNRubies() < b.getNRubies(); });
+         [](const Player& a, const Player& b) { return a.getNRubies() > b.getNRubies(); });
 
     for (Player& p : finalStandings) p.setDisplayMode(true);
 
-    cout << "Final scores (least to most rubies):\n";
+    cout << "Final scores (most to least rubies):\n";
     for (const Player& p : finalStandings) {
         cout << p;
     }
 
-    cout << "\n*** " << finalStandings.back().getName() << " WINS THE GAME!!! ***\n";
+    cout << "\n-------- " << finalStandings.front().getName() << " WINS THE GAME!!! --------\n";
 
     return 0;
 }
