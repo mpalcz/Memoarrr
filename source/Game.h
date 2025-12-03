@@ -42,5 +42,6 @@ class Game {
     std::vector<Player> &getPlayers() { return players; }             // also need a non-const for adding rubis
     Player::Side getTurn() const { return turn; }                     // get the player whos turn it is
     void nextTurn() { currentPlayerIndex = (currentPlayerIndex + 1) % players.size(); }
+    void peekCards(int boardSize);
 };
 #endif

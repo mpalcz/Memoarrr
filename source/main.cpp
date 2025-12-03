@@ -13,6 +13,7 @@
 using namespace std;
 
 int main() {
+    int BOARD_SIZE = 5;
     // user intput variables
     int num_players;
     string name;
@@ -46,6 +47,7 @@ int main() {
         game.startRound(); // put all cards face down, reset current etc.
 
         // let each player look at the 3 cards in front of them (temporarily)
+        game.peekCards(BOARD_SIZE);
 
         while (!rules.roundOver(game)) {
             Player &currentPlayer = game.getCurrentPlayer();
