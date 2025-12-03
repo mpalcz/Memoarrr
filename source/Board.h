@@ -14,15 +14,14 @@ class Board {
     enum class Number { One, Two, Three, Four, Five }; // enum elements have to be identifiers not integers
 
     // Enum template helper functions (only accessible to 'main' friend class)
-    template<typename Enum>
-    static int toIndex(Enum e) { return static_cast<int>(e); }
+    template <typename Enum> static int toIndex(Enum e) { return static_cast<int>(e); }
 
-    template <typename Enum>
-    static Enum getEnumAt(int i) {
-      if (i < 0 || i >= GameParameters::BoardSize) throw std::out_of_range("Enum index out of range");
-      return static_cast<Enum>(i);
+    template <typename Enum> static Enum getEnumAt(int i) {
+        if (i < 0 || i >= GameParameters::BoardSize)
+            throw std::out_of_range("Enum index out of range");
+        return static_cast<Enum>(i);
     }
-   
+
     // Constructor and Destructor
     Board();
     ~Board();
@@ -39,9 +38,9 @@ class Board {
     friend std::ostream &operator<<(std::ostream &os, const Board &b);
 
   private:
-    Card* board[GameParameters::BoardSize][GameParameters::BoardSize] = {}; // 5x5 board of cards
+    Card *board[GameParameters::BoardSize][GameParameters::BoardSize] = {}; // 5x5 board of cards
 
-    void validatePosition(const Letter&, const Number&) const;
+    void validatePosition(const Letter &, const Number &) const;
 };
 
 #endif

@@ -2,23 +2,23 @@
 #include "Board.h"
 #include "Card.h"
 #include "CardDeck.h"
+#include "Exceptions.h"
 #include "Game.h"
 #include "Player.h"
 #include "Rubis.h"
 #include "RubisDeck.h"
 #include "Rules.h"
-#include "Exceptions.h"        
-#include <iostream>
 #include <algorithm>
 #include <cctype>
-#include <vector>
+#include <iostream>
 #include <limits>
 #include <sstream>
+#include <vector>
 
 using namespace std;
 
 // Function to clean up name from user input, getting rid of leading and trailing whitespace and replacing multiple spaces with one in between names
-string cleanInput(const string& input) {
+string cleanInput(const string &input) {
     string s = input;
 
     // Trim any leading spaces
@@ -51,17 +51,19 @@ string cleanInput(const string& input) {
 }
 
 // Checks if there are any facedown cards to flip
-bool hasFaceDownCards(const Game& game) {
+bool hasFaceDownCards(const Game &game) {
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
         for (int j = 0; j < GameParameters::BoardSize; ++j) {
-            if (i == GameParameters::CenterRow && j == GameParameters::CenterCol) continue;
+            if (i == GameParameters::CenterRow && j == GameParameters::CenterCol)
+                continue;
             Board::Letter l = Board::getEnumAt<Board::Letter>(i);
             Board::Number n = Board::getEnumAt<Board::Number>(j);
             /*
             Board::Letter l = static_cast<Board::Letter>(i);
             Board::Number n = static_cast<Board::Number>(j);
             */
-            if (!game.isFaceUp(l, n)) return true;
+            if (!game.isFaceUp(l, n))
+                return true;
         }
     }
     return false;
@@ -76,7 +78,8 @@ int main() {
     bool gameVersionAttempted = false;
 
     do {
-        if (gameVersionAttempted) cout << "Invalid input. Please try again." << endl;
+        if (gameVersionAttempted)
+            cout << "Invalid input. Please try again." << endl;
         cout << "Choose game version (base/expert display/expert rules/both): ";
         getline(cin, gameVersion);
         gameVersion = cleanInput(gameVersion);
@@ -86,13 +89,17 @@ int main() {
     bool expertDisplay = (gameVersion == "expert display" || gameVersion == "both");
     bool expertRules = (gameVersion == "expert rules" || gameVersion == "both");
 
-    // Get number of players from user 
+    // initialize card deck with expert rules before Game
+    CardDeck::make_CardDeck(expertRules);
+
+    // get number of players /// may need to edit so that it continuously reprompts
     int num_players;
     string num_players_string;
     bool numPlayersAttempted = false;
 
     do {
-        if (numPlayersAttempted) cout << "Invalid input. Please try again." << endl;
+        if (numPlayersAttempted)
+            cout << "Invalid input. Please try again." << endl;
         cout << "Enter the number of Players [2-4]: ";
         getline(cin, num_players_string);
         num_players_string = cleanInput(num_players_string);
@@ -104,15 +111,17 @@ int main() {
     // Initialize game instances to run Memoarrr
     Game game(expertDisplay, expertRules);
     Rules rules;
-    RubisDeck& rubisDeck = RubisDeck::make_RubisDeck();
+    RubisDeck &rubisDeck = RubisDeck::make_RubisDeck();
 
     vector<string> playerNames;
     string name;
     for (int i = 0; i < num_players; ++i) {
         bool playerNameAttempted = false;
         while (name.empty() || find(playerNames.begin(), playerNames.end(), name) != playerNames.end()) {
-            if (playerNameAttempted && name.empty()) cout << "Invalid input, please enter a name." << endl;
-            else if (playerNameAttempted) cout << "Player name already exists. Please enter a new player name." << endl;
+            if (playerNameAttempted && name.empty())
+                cout << "Invalid input, please enter a name." << endl;
+            else if (playerNameAttempted)
+                cout << "Player name already exists. Please enter a new player name." << endl;
             cout << "Enter Player " << i + 1 << " name: ";
             getline(cin, name);
             name = cleanInput(name);
@@ -125,6 +134,41 @@ int main() {
     }
     cout << '\n' << game; // print the starting board
 
+    // === DEBUG: Reveal entire board at start ===
+    cout << "\n=== DEBUG: FULL BOARD REVEAL ===\n";
+
+    for (int i = 0; i < GameParameters::BoardSize; ++i) {
+        for (int j = 0; j < GameParameters::BoardSize; ++j) {
+            if (i == GameParameters::CenterRow && j == GameParameters::CenterCol)
+                continue; // skip center if your game rules require it
+
+            Board::Letter l = Board::getEnumAt<Board::Letter>(i);
+            Board::Number n = Board::getEnumAt<Board::Number>(j);
+            game.turnFaceUp(l, n);
+        }
+    }
+
+    // Print fully revealed board
+    cout << game << "\n";
+
+    // Pause so you can inspect
+    cout << "(press Enter to continue to actual game)";
+    cin.get();
+
+    // Turn everything face-down again
+    for (int i = 0; i < GameParameters::BoardSize; ++i) {
+        for (int j = 0; j < GameParameters::BoardSize; ++j) {
+            if (i == GameParameters::CenterRow && j == GameParameters::CenterCol)
+                continue;
+
+            Board::Letter l = Board::getEnumAt<Board::Letter>(i);
+            Board::Number n = Board::getEnumAt<Board::Number>(j);
+            game.turnFaceDown(l, n);
+        }
+    }
+
+    cout << "\n=== DEBUG: END FULL BOARD REVEAL ===\n\n";
+
     // MAIN LOOP
     while (!rules.gameOver(game)) {
         cout << "\n-------- BEGINNING OF ROUND " << game.getRound() + 1 << " --------\n";
@@ -132,7 +176,7 @@ int main() {
         game.startNewRound(); // face down all cards + activate all players + reset current/previous
 
         //  Temporarily reveal 3 cards directly in front of each player
-        for (const Player& p : game.getPlayers()) {                    
+        for (const Player &p : game.getPlayers()) {
             cout << "\n" << p.getName() << ", look at your 3 secret cards:\n";
 
             vector<pair<Board::Letter, Board::Number>> peekCards;
@@ -140,59 +184,52 @@ int main() {
             int middlepos = GameParameters::BoardSize / 2;
 
             switch (playerSide) {
-                case Player::Side::top: {
-                    Board::Letter row = Board::getEnumAt<Board::Letter>(0);
-                    peekCards = {
-                        {row, Board::getEnumAt<Board::Number>(middlepos-1)}, 
-                        {row, Board::getEnumAt<Board::Number>(middlepos)}, 
-                        {row, Board::getEnumAt<Board::Number>(middlepos+1)}
-                    };
-                    break;
-                } 
-                case Player::Side::bottom: {
-                    Board::Letter row = Board::getEnumAt<Board::Letter>(GameParameters::BoardSize - 1);
-                    peekCards = {
-                        {row, Board::getEnumAt<Board::Number>(middlepos-1)}, 
-                        {row, Board::getEnumAt<Board::Number>(middlepos)}, 
-                        {row, Board::getEnumAt<Board::Number>(middlepos+1)}
-                    };
-                    break;
-                } 
-                case Player::Side::left: {
-                    Board::Number col = Board::getEnumAt<Board::Number>(0);
-                    peekCards = {
-                        {Board::getEnumAt<Board::Letter>(middlepos-1), col}, 
-                        {Board::getEnumAt<Board::Letter>(middlepos), col}, 
-                        {Board::getEnumAt<Board::Letter>(middlepos+1), col}
-                    };
-                    break;
-                }
-                case Player::Side::right: {
-                    Board::Number col = Board::getEnumAt<Board::Number>(GameParameters::BoardSize - 1);
-                    peekCards = {
-                        {Board::getEnumAt<Board::Letter>(middlepos-1), col}, 
-                        {Board::getEnumAt<Board::Letter>(middlepos), col}, 
-                        {Board::getEnumAt<Board::Letter>(middlepos+1), col}
-                    };
-                    break;
-                }
+            case Player::Side::top: {
+                Board::Letter row = Board::getEnumAt<Board::Letter>(0);
+                peekCards = {{row, Board::getEnumAt<Board::Number>(middlepos - 1)},
+                             {row, Board::getEnumAt<Board::Number>(middlepos)},
+                             {row, Board::getEnumAt<Board::Number>(middlepos + 1)}};
+                break;
             }
-    
+            case Player::Side::bottom: {
+                Board::Letter row = Board::getEnumAt<Board::Letter>(GameParameters::BoardSize - 1);
+                peekCards = {{row, Board::getEnumAt<Board::Number>(middlepos - 1)},
+                             {row, Board::getEnumAt<Board::Number>(middlepos)},
+                             {row, Board::getEnumAt<Board::Number>(middlepos + 1)}};
+                break;
+            }
+            case Player::Side::left: {
+                Board::Number col = Board::getEnumAt<Board::Number>(0);
+                peekCards = {{Board::getEnumAt<Board::Letter>(middlepos - 1), col},
+                             {Board::getEnumAt<Board::Letter>(middlepos), col},
+                             {Board::getEnumAt<Board::Letter>(middlepos + 1), col}};
+                break;
+            }
+            case Player::Side::right: {
+                Board::Number col = Board::getEnumAt<Board::Number>(GameParameters::BoardSize - 1);
+                peekCards = {{Board::getEnumAt<Board::Letter>(middlepos - 1), col},
+                             {Board::getEnumAt<Board::Letter>(middlepos), col},
+                             {Board::getEnumAt<Board::Letter>(middlepos + 1), col}};
+                break;
+            }
+            }
 
-            for (auto [l, n] : peekCards) game.turnFaceUp(l, n);
+            for (auto [l, n] : peekCards)
+                game.turnFaceUp(l, n);
             cout << '\n' << game << '\n';
 
             cout << "(press Enter when done)...";
             string dummy;
             getline(cin, dummy);
-            //cin.get();
+            // cin.get();
 
-            for (auto [l, n] : peekCards) game.turnFaceDown(l, n);
+            for (auto [l, n] : peekCards)
+                game.turnFaceDown(l, n);
         }
 
         // Round play
         while (!rules.roundOver(game)) {
-            Player& currentPlayer = game.getCurrentPlayer();
+            Player &currentPlayer = game.getCurrentPlayer();
 
             // skip inactive players
             while (!currentPlayer.isActive()) {
@@ -216,8 +253,8 @@ int main() {
                 cout << "Enter card - letter then number (ex. \"a1\" or \"B2\"): ";
                 getline(cin, userInput);
                 userInput = cleanInput(userInput);
-                if (userInput.size() !=2 || !(isalpha(userInput[0]) && isdigit(userInput[1]))) {
-                    cout << "Invalid input. Please try again." << endl; 
+                if (userInput.size() != 2 || !(isalpha(userInput[0]) && isdigit(userInput[1]))) {
+                    cout << "Invalid input. Please try again." << endl;
                     continue;
                 }
                 try {
@@ -225,11 +262,11 @@ int main() {
                     int letter_index = card_letter - 'A';
 
                     int card_number = userInput[1] - '0';
-                    int number_index = card_number - 1; 
+                    int number_index = card_number - 1;
 
-                    l = Board::getEnumAt<Board::Letter>(letter_index);          
-                    n = Board::getEnumAt<Board::Number>(number_index); 
-                } catch (const out_of_range& e) {
+                    l = Board::getEnumAt<Board::Letter>(letter_index);
+                    n = Board::getEnumAt<Board::Number>(number_index);
+                } catch (const out_of_range &e) {
                     cout << "Input must be a number and letter in valid board range: Letter = [A-";
                     cout << static_cast<char>('A' + GameParameters::BoardSize - 1) << "], Number = [1-";
                     cout << GameParameters::BoardSize << "]. Please try again." << endl;
@@ -272,10 +309,11 @@ int main() {
                     }
                 }
 
-                if (!game.getExtraTurn()) game.nextPlayer();
+                if (!game.getExtraTurn())
+                    game.nextPlayer();
                 game.setExtraTurn(false); // Reset after potential extra turn
 
-            } catch (const OutOfRange&) {                    
+            } catch (const OutOfRange &) {
                 cout << "Invalid position - you are out this round!\n";
                 currentPlayer.setActive(false);
                 game.nextPlayer();
@@ -285,11 +323,11 @@ int main() {
         // Round over - give rubies to the winner ===
         cout << "\n-------- ROUND " << game.getRound() << " OVER --------\n";
 
-        for (Player& p : game.getPlayers()) {                    
+        for (Player &p : game.getPlayers()) {
             if (p.isActive()) {
                 cout << p.getName() << " wins the round!\n";
 
-                Rubis* r = rubisDeck.getNext();
+                Rubis *r = rubisDeck.getNext();
                 if (!r) {
                     cout << "No more rubies!\n";
                 } else {
@@ -307,15 +345,15 @@ int main() {
     cout << "##################### GAME OVER #########################\n";
     cout << "#########################################################\n\n";
 
-    // Show scores sorted from most to least rubies
-    vector<Player> finalStandings = game.getPlayers();        
-    sort(finalStandings.begin(), finalStandings.end(),
-         [](const Player& a, const Player& b) { return a.getNRubies() > b.getNRubies(); });
+    // Show scores sorted from least to most rubies
+    vector<Player> finalStandings = game.getPlayers();
+    sort(finalStandings.begin(), finalStandings.end(), [](const Player &a, const Player &b) { return a.getNRubies() < b.getNRubies(); });
 
-    for (Player& p : finalStandings) p.setDisplayMode(true);
+    for (Player &p : finalStandings)
+        p.setDisplayMode(true);
 
-    cout << "Final scores (most to least rubies):\n";
-    for (const Player& p : finalStandings) {
+    cout << "Final scores (least to most rubies):\n";
+    for (const Player &p : finalStandings) {
         cout << p;
     }
 

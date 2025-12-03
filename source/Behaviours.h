@@ -1,107 +1,181 @@
-// Behaviors.h (new for expert rules polymorphism)
 #ifndef BEHAVIOURS_H
 #define BEHAVIOURS_H
 
 #include "Card.h"
 #include "Game.h"
-#include "Exceptions.h"
-#include <iostream>
 #include <cctype>
+#include <iostream>
 
+// Crab - extra turn
 class CrabCard : public Card {
-public:
+  public:
     CrabCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Crab, b) {}
-    void applyEffect(Game& g) const override {
+
+    void applyEffect(Game &g) const override {
         g.setExtraTurn(true);
+        std::cout << "CRAB! You get an extra turn!\n";
     }
 };
 
+// Penguin - turn a card face down
 class PenguinCard : public Card {
-public:
+  public:
     PenguinCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Penguin, b) {}
-    void applyEffect(Game& g) const override {
-        if (!g.getPreviousCard()) return;  // No action if first
-        std::cout << "Penguin: choose face-up card to turn down (L N): ";
-        char let; int num;
-        std::cin >> let >> num;
-        let = toupper(let);
-        Board::Letter l = static_cast<Board::Letter>(let - 'A');
-        Board::Number n = static_cast<Board::Number>(num - 1);
-        try {
-            while (!g.turnFaceDown(l, n) || (l == g.getCurrentPosition().first && n == g.getCurrentPosition().second)) {
-                std::cout << "Invalid (must be face up, not current), choose again: ";
-                std::cin >> let >> num;
-                let = toupper(let);
-                l = static_cast<Board::Letter>(let - 'A');
-                n = static_cast<Board::Number>(num - 1);
+
+    void applyEffect(Game &g) const override {
+        std::cout << "PENGUIN! Choose a face-up card to turn down (Letter Number): ";
+
+        char letter;
+        int number;
+        Board::Letter l;
+        Board::Number n;
+        Card *chosen;
+
+        while (true) {
+            std::cin >> letter >> number;
+            letter = toupper(letter);
+
+            // Validate input
+            if (letter < 'A' || letter > 'E' || number < 1 || number > 5) {
+                std::cout << "Invalid position! Try again (A-E, 1-5): ";
+                continue;
             }
-        } catch (const OutOfRange&) {
-            std::cout << "Invalid position - no change.\n";
+
+            l = static_cast<Board::Letter>(letter - 'A' + 1);
+            n = static_cast<Board::Number>(number);
+
+            try {
+                chosen = g.getCard(l, n);
+
+                // Must be face-up and NOT the current card
+                if (!chosen->isFaceUp()) {
+                    std::cout << "That card is face down! Choose a face-up card: ";
+                    continue;
+                }
+                if (l == g.getCurrentPosition().first && n == g.getCurrentPosition().second) {
+                    std::cout << "You can't turn down the card you just flipped! Try again: ";
+                    continue;
+                }
+
+                // Success!
+                chosen->turnFaceDown();
+                std::cout << "Card at " << letter << number << " turned face down!\n";
+                break;
+
+            } catch (...) {
+                std::cout << "Invalid position! Try again: ";
+            }
         }
     }
 };
 
+// OCTOPUS - swap with adjacent
 class OctopusCard : public Card {
-public:
+  public:
     OctopusCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Octopus, b) {}
-    void applyEffect(Game& g) const override {
-        auto [cl, cn] = g.getCurrentPosition();
-        int cr = static_cast<int>(cl), cc = static_cast<int>(cn);
-        std::cout << "Octopus: choose adjacent to swap (L N): ";
-        char let; int num;
-        std::cin >> let >> num;
-        let = toupper(let);
-        Board::Letter l = static_cast<Board::Letter>(let - 'A');
-        Board::Number n = static_cast<Board::Number>(num - 1);
-        int ar = static_cast<int>(l), ac = static_cast<int>(n);
-        try {
-            while (!((std::abs(ar - cr) + std::abs(ac - cc) == 1) && ar >= 0 && ar < 5 && ac >= 0 && ac < 5 && !(ar == 2 && ac == 2))) {
-                std::cout << "Invalid adjacent, choose again: ";
-                std::cin >> let >> num;
-                let = toupper(let);
-                l = static_cast<Board::Letter>(let - 'A');
-                n = static_cast<Board::Number>(num - 1);
-                ar = static_cast<int>(l); ac = static_cast<int>(n);
+
+    void applyEffect(Game &g) const override {
+        Board::Letter currL = g.getCurrentPosition().first;
+        Board::Number currN = g.getCurrentPosition().second;
+        int currRow = static_cast<int>(currL);
+        int currCol = static_cast<int>(currN);
+
+        std::cout << "OCTOPUS! Choose an adjacent card to swap with (L N): ";
+
+        char letter;
+        int number;
+        Board::Letter l;
+        Board::Number n;
+
+        while (true) {
+            std::cin >> letter >> number;
+            letter = toupper(letter);
+
+            if (letter < 'A' || letter > 'E' || number < 1 || number > 5) {
+                std::cout << "Invalid position! Try again: ";
+                continue;
             }
-            Card* curr = g.getCard(cl, cn);
-            Card* adj = g.getCard(l, n);
-            g.setCard(cl, cn, adj);
-            g.setCard(l, n, curr);
-        } catch (const OutOfRange&) {
-            std::cout << "Invalid position - no swap.\n";
+
+            l = static_cast<Board::Letter>(letter - 'A' + 1);
+            n = static_cast<Board::Number>(number);
+            int targetRow = static_cast<int>(l);
+            int targetCol = static_cast<int>(n);
+
+            // Must be exactly one step away (up/down/left/right)
+            if (abs(currRow - targetRow) + abs(currCol - targetCol) != 1) {
+                std::cout << "Must be directly adjacent! Try again: ";
+                continue;
+            }
+
+            try {
+                Card *currentCard = g.getCard(currL, currN);
+                Card *targetCard = g.getCard(l, n);
+
+                g.setCard(currL, currN, targetCard);
+                g.setCard(l, n, currentCard);
+
+                std::cout << "Swapped with " << letter << number << "!\n";
+                break;
+            } catch (...) {
+                std::cout << "Invalid swap! Try again: ";
+            }
         }
     }
 };
 
+// Turtle - skip next player
 class TurtleCard : public Card {
-public:
+  public:
     TurtleCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Turtle, b) {}
-    void applyEffect(Game& g) const override {
-        g.nextPlayer();  // Skip next
+
+    void applyEffect(Game &g) const override {
+        std::cout << "TURTLE! The next player is skipped!\n";
+        g.nextPlayer(); // skip the next player
     }
 };
 
+// Walrus - Block a face down card
 class WalrusCard : public Card {
-public:
+  public:
     WalrusCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Walrus, b) {}
-    void applyEffect(Game& g) const override {
-        std::cout << "Walrus: choose face-down to block (L N): ";
-        char let; int num;
-        std::cin >> let >> num;
-        let = toupper(let);
-        Board::Letter l = static_cast<Board::Letter>(let - 'A');
-        Board::Number n = static_cast<Board::Number>(num - 1);
-        try {
-            while (g.isFaceUp(l, n)) {
-                std::cout << "Invalid (must be face down), choose again: ";
-                std::cin >> let >> num;
-                let = toupper(let);
-                l = static_cast<Board::Letter>(let - 'A');
-                n = static_cast<Board::Number>(num - 1);
+
+    void applyEffect(Game &g) const override {
+        std::cout << "WALRUS! Choose a face-down card to block (L N): ";
+
+        char letter;
+        int number;
+        Board::Letter l;
+        Board::Number n;
+        Card *chosen;
+
+        while (true) {
+            std::cin >> letter >> number;
+            letter = toupper(letter);
+
+            if (letter < 'A' || letter > 'E' || number < 1 || number > 5) {
+                std::cout << "Invalid position! Try again: ";
+                continue;
             }
-            g.setBlockedPosition(l, n);
-        } catch (const OutOfRange&) {
-            std::cout << "Invalid position - no block.\n";
+
+            l = static_cast<Board::Letter>(letter - 'A' + 1);
+            n = static_cast<Board::Number>(number);
+
+            try {
+                chosen = g.getCard(l, n);
+
+                if (chosen->isFaceUp()) {
+                    std::cout << "Card must be face down! Try again: ";
+                    continue;
+                }
+
+                g.setBlockedPosition(l, n);
+                std::cout << "Card at " << letter << number << " is now BLOCKED!\n";
+                break;
+
+            } catch (...) {
+                // catch any other issue
+                std::cout << "Invalid position! Try again: ";
+            }
         }
     }
 };
