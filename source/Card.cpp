@@ -33,8 +33,7 @@ static char backgroundLetter(Card::FaceBackground b) {
 /*############## CLASS DEFINITIONS ##################*/
 
 std::string Card::operator()(int row) const {
-    if (isBlank()) return "   ";
-    if (!faceUp) return "zzz";
+    if (!faceUp) return "zzz"; // IS THIS NECESSARY???????????????
 
     // Card is square shaped (thus NumColumnsCard = NumRowsCard)
     std::string s(GameParameters::NumRowsCard, backgroundLetter(background));
@@ -44,6 +43,6 @@ std::string Card::operator()(int row) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Card& c) {
-    for (int row = 0; row < c.getNRows(); ++row) os << c(row) << std::endl;
+    for (int row = 0; row < c.getNRows(); ++row) os << c(row) << '\n';
     return os;
 }

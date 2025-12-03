@@ -7,27 +7,27 @@
 
 // Forward declarations
 class CardDeck;
-class Board;
+class Game;
 
 class Card {
   friend class CardDeck;
-  friend class Board; // So Board can construct blank card
 
   public:
     // Card Enums
     enum class FaceAnimal { Crab, Penguin, Octopus, Turtle, Walrus };
     enum class FaceBackground { Red, Green, Purple, Blue, Yellow };
 
+  protected: // Protected for potential derived classes in expert mode (MAY NEED TO CHANGE)
+    Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {}
+
   private:
     // Instance variables
     FaceAnimal animal;
     FaceBackground background;
     bool faceUp = false;
-    bool blank = false;
 
     // Constructors
-    Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {} // private constructor
-    Card() : blank(true) {}             // center empty card
+    //Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {} // private constructor !!!!!!!!!!!!!!!!!!! MAY NEED TO REIMPLEMENT
 
   public:
     // Conversion operators
@@ -38,11 +38,13 @@ class Card {
     std::string operator()(int row) const;
 
     bool isFaceUp() const { return faceUp; }
-    bool isBlank() const { return blank; }
     void turnFaceUp() { faceUp = true; }
     void turnFaceDown() { faceUp = false; }
 
     static constexpr int getNRows() { return GameParameters::NumRowsCard; }
+
+    // For expert modes
+    virtual void applyEffect(Game& g) const {}
 
     // make Card "printable"
     friend std::ostream &operator<<(std::ostream &os, const Card &c);

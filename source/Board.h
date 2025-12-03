@@ -3,7 +3,6 @@
 
 #include "Card.h"
 #include "GameParameters.h"
-#include <memory>
 #include <iostream>
 
 class Board {
@@ -14,7 +13,7 @@ class Board {
     enum class Number { One, Two, Three, Four, Five }; // enum elements have to be identifiers not integers
 
   private:
-    std::unique_ptr<Card> board[GameParameters::BoardSize][GameParameters::BoardSize]; // 5x5 board of cards
+    Card* board[GameParameters::BoardSize][GameParameters::BoardSize] = {}; // 5x5 board of cards
 
     template<typename Enum>
     int toIndex(Enum e) const { return static_cast<int>(e); }
@@ -23,11 +22,12 @@ class Board {
 
   public:
    
-    // Constructor
+    // Constructor and Destructor
     Board();
+    ~Board();
 
     // Public interface
-    bool isFaceUp(const Letter &l, const Number &n) const { return getCard(l, n)->isFaceUp(); }
+    bool isFaceUp(const Letter &l, const Number &n) const;
     bool turnFaceUp(const Letter &, const Number &);
     bool turnFaceDown(const Letter &, const Number &);
     Card *getCard(const Letter &, const Number &);

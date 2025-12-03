@@ -1,18 +1,13 @@
-// RubisDeck.cpp: Implements the RubisDeck class for creating and managing a deck of rubis.
-
+// RubisDeck.cpp
 #include "Rubis.h"
 #include "RubisDeck.h"
 #include "GameParameters.h"
 
-#include <vector>
-
-// constructor
 RubisDeck::RubisDeck() {
-    // Iterate over the rubisValues map defined in the game parameters
     for (std::size_t value = 1; value < GameParameters::RubisDistribution.size(); ++value) {
         int count = GameParameters::RubisDistribution[value];
         for (int i = 0; i < count; ++i) {
-            deck.push_back(new Rubis(value));
+            deck.push_back(new Rubis(static_cast<int>(value)));
         }
     }
     shuffle();

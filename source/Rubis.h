@@ -1,5 +1,4 @@
-// Rubis.h: Header for Rubis class representing rubis rewards (1-4).
-
+// Rubis.h (fixed plural)
 #ifndef RUBIS_H
 #define RUBIS_H
 
@@ -10,22 +9,20 @@
 class RubisDeck;
 
 class Rubis {
-  friend class RubisDeck; // establish friendship for private constructor access
+  friend class RubisDeck;
 
-  private:
-    // Instance variables
-    int numRubis;
+private:
+    int numRubies;
 
-    // Constructor
     Rubis(int val) {
-      if (val == 0 || val >= static_cast<int>(GameParameters::RubisDistribution.size())) throw std::invalid_argument("Rubis value must be between 1 and 4");
-      numRubis = val;
+      if (val == 0 || val >= static_cast<int>(GameParameters::RubisDistribution.size())) throw std::invalid_argument("Rubies value must be between 1 and 4");
+      numRubies = val;
     }
 
-  public:
-    operator int() const { return numRubis; }
+public:
+    operator int() const { return numRubies; }
     friend std::ostream& operator<<(std::ostream& os, const Rubis& r) {
-        os << r.numRubis << " rubis";
+        os << r.numRubies << " rub" << (r.numRubies == 1 ? "y" : "ies");
         return os;
     }
 };

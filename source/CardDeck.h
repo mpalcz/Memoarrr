@@ -5,9 +5,9 @@
 #include "Card.h"
 
 class CardDeck : public DeckFactory<Card> {
-    CardDeck();
+    CardDeck(bool expertRules);
 public:
-    static CardDeck& make_CardDeck();
+    static CardDeck& make_CardDeck(bool expertRules = false);
 };
 
 #endif

@@ -1,5 +1,4 @@
-// main.cpp: Entry point for the Memoarrr game.
-
+// main.cpp
 #include "Board.h"
 #include "Card.h"
 #include "CardDeck.h"
@@ -23,7 +22,7 @@ bool hasFaceDownCards(const Game& game) {
             if (i == GameParameters::CenterRow && j == GameParameters::CenterCol) continue;
             Board::Letter l = static_cast<Board::Letter>(i);
             Board::Number n = static_cast<Board::Number>(j);
-            if (!game.getBoard().isFaceUp(l, n)) return true;
+            if (!game.isFaceUp(l, n)) return true;
         }
     }
     return false;
@@ -49,7 +48,7 @@ int main() {
         cin >> num_players;
     }
 
-    Game game;
+    Game game(expertDisplay, expertRules);
     Rules rules;
     RubisDeck& rubisDeck = RubisDeck::make_RubisDeck();
 
@@ -77,10 +76,10 @@ int main() {
 
             if (p.getSide() == Player::Side::top) {
                 Board::Letter row = Board::Letter::A;
-                peekCards = {{row, Board::Number::One}, {row, Board::Number::Two}, {row, Board::Number::Three}};
+                peekCards = {{row, Board::Number::Two}, {row, Board::Number::Three}, {row, Board::Number::Four}};
             } else if (p.getSide() == Player::Side::bottom) {
                 Board::Letter row = Board::Letter::E;
-                peekCards = {{row, Board::Number::Three}, {row, Board::Number::Four}, {row, Board::Number::Five}};
+                peekCards = {{row, Board::Number::Two}, {row, Board::Number::Three}, {row, Board::Number::Four}};
             } else if (p.getSide() == Player::Side::left) {
                 Board::Number col = Board::Number::One;
                 peekCards = {{Board::Letter::B, col}, {Board::Letter::C, col}, {Board::Letter::D, col}};
@@ -90,7 +89,7 @@ int main() {
             }
 
             for (auto [l, n] : peekCards) game.turnFaceUp(l, n);
-            cout << game.getBoard() << "\n";
+            cout << game << "\n";
             cin.ignore();
             cin.get(); // wait for Enter
 
@@ -125,19 +124,25 @@ int main() {
             Board::Letter l = static_cast<Board::Letter>(card_letter - 'A');          
             Board::Number n = static_cast<Board::Number>(card_number - 1);            
 
+            auto blocked = game.getBlockedPosition();
+            if (l == blocked.first && n == blocked.second) {
+                cout << "Blocked position - choose another!\n";
+                continue;
+            }
+
             try {
                 // Flip the card
                 if (!game.turnFaceUp(l, n)) {
-                    cout << "Card already face up or invalid - you are out this round!\n";
+                    cout << "Card already face up - you are out this round!\n";
                     currentPlayer.setActive(false);
                     game.nextPlayer();
                     continue;
                 }
 
-                Card* flippedCard = game.getCard(l, n);
-                game.setCurrentCard(flippedCard);
+                game.setCurrentPosition(l, n);
+                game.setCurrentCard(game.getCard(l, n));
 
-                cout << game.getBoard() << "\n";
+                cout << game << "\n";
 
                 // Check match
                 if (!rules.isValid(game)) {
@@ -145,14 +150,13 @@ int main() {
                     game.turnFaceDown(l, n);
                     currentPlayer.setActive(false);
                 } else {
-                    cout << "Match! \n";
-                    // Apply expert effect if enabled
-                    if (expertRules) {
-                        // To implement: flippedCard->applyEffect(game);
+                    cout << "Match!\n";
+                    if (game.isExpertRules()) {
+                        game.getCurrentCard()->applyEffect(game);
                     }
                 }
 
-                game.nextPlayer();
+                if (!game.getExtraTurn()) game.nextPlayer();
 
             } catch (const OutOfRange&) {                    
                 cout << "Invalid position - you are out this round!\n";
@@ -161,7 +165,7 @@ int main() {
             }
         }
 
-        // === Round over - give rubis to the winner ===
+        // === Round over - give rubies to the winner ===
         cout << "\n################ ROUND " << game.getRound() << " OVER ################\n";
 
         for (Player& p : game.getPlayers()) {                    
@@ -170,7 +174,7 @@ int main() {
 
                 Rubis* r = rubisDeck.getNext();
                 if (!r) {
-                    cout << "No more rubis!\n";
+                    cout << "No more rubies!\n";
                 } else {
                     p.addRubis(*r);
                     cout << p.getName() << " receives " << *r << "\n";
@@ -185,16 +189,16 @@ int main() {
     cout << "##################### GAME OVER #########################\n";
     cout << "#########################################################\n\n";
 
-    // Show scores sorted from least to most rubis
+    // Show scores sorted from least to most rubies
     vector<Player> finalStandings = game.getPlayers();        
     sort(finalStandings.begin(), finalStandings.end(),
          [](const Player& a, const Player& b) { return a.getNRubies() < b.getNRubies(); });
 
     for (Player& p : finalStandings) p.setDisplayMode(true);
 
-    cout << "Final scores (least to most rubis):\n";
+    cout << "Final scores (least to most rubies):\n";
     for (const Player& p : finalStandings) {
-        cout << p << "\n";
+        cout << p;
     }
 
     cout << "\n*** " << finalStandings.back().getName() << " WINS THE GAME!!! ***\n";

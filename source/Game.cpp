@@ -1,6 +1,6 @@
-// Game.cpp: Implements the Game class for managing game state.
-
+// Game.cpp
 #include "Game.h"
+#include <algorithm>
 
 Player& Game::getPlayer(Player::Side s) {
     for (auto& p : players)
@@ -15,8 +15,29 @@ const Player& Game::getPlayer(Player::Side s) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Game& g) {
-    os << g.board << '\n';
-    for (const auto& p : g.players)
-        os << p << '\n';
+    if (g.expertDisplayMode) {
+        std::vector<std::pair<const Card*, std::string>> faceUps;
+        for (int r = 0; r < GameParameters::BoardSize; ++r) {
+            for (int c = 0; c < GameParameters::BoardSize; ++c) {
+                if (r == GameParameters::CenterRow && c == GameParameters::CenterCol) continue;
+                const Card* card = g.board.getCard(static_cast<Board::Letter>(r), static_cast<Board::Number>(c));
+                if (card && card->isFaceUp()) {
+                    char let = 'A' + r;
+                    std::string pos = std::string(1, let) + std::to_string(c + 1);
+                    faceUps.emplace_back(card, pos);
+                }
+            }
+        }
+        for (int cr = 0; cr < GameParameters::NumRowsCard; ++cr) {
+            for (const auto& p : faceUps) os << (*p.first)(cr) << ' ';
+            os << '\n';
+        }
+        for (const auto& p : faceUps) os << p.second << ' ';
+        os << '\n';
+    } else {
+        os << g.board;
+    }
+    os << '\n';
+    for (const auto& p : g.players) os << p;
     return os;
 }
