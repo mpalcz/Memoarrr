@@ -57,4 +57,5 @@ std::ostream &operator<<(std::ostream &os, const Game &g) {
     for (const auto &p : g.players)
         os << p;
     return os;
+    
 }

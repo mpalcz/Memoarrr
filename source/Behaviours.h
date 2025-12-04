@@ -124,7 +124,6 @@ class OctopusCard : public Card {
 
             try {
                 Card *currentCard = g.getCard(currL, currN);
-                Card *targetCard = g.getCard(l, n);
 
                 // Swap without using setCard (which deletes cards)
                 // We need to directly swap the pointers in the board

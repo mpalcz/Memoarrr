@@ -70,7 +70,7 @@ bool hasFaceDownCards(const Game &game) {
 }
 
 int main() {
-    cout << "WELCOME TO MEMOARRR!\n\n";
+    cout << "MEMOARRR!\n\n";
 
     // Get game version from user
     string gameVersion;
@@ -300,7 +300,7 @@ int main() {
                     cout << "First card flipped!\n";
                 } else if (!rules.isValid(game)) {
                     cout << "No match! " << currentPlayer.getName() << " is out this round.\n";
-                    game.turnFaceDown(l, n);
+                    //game.turnFaceDown(l, n);
                     currentPlayer.setActive(false);
                 } else {
                     cout << "Match!\n";
@@ -345,14 +345,14 @@ int main() {
     cout << "##################### GAME OVER #########################\n";
     cout << "#########################################################\n\n";
 
-    // Show scores sorted from least to most rubies
+    // Show scores sorted from most to least rubies
     vector<Player> finalStandings = game.getPlayers();
-    sort(finalStandings.begin(), finalStandings.end(), [](const Player &a, const Player &b) { return a.getNRubies() < b.getNRubies(); });
+    sort(finalStandings.begin(), finalStandings.end(), [](const Player &a, const Player &b) { return a.getNRubies() > b.getNRubies(); });
 
     for (Player &p : finalStandings)
         p.setDisplayMode(true);
 
-    cout << "Final scores (least to most rubies):\n";
+    cout << "Final scores (most to least rubies):\n";
     for (const Player &p : finalStandings) {
         cout << p;
     }
