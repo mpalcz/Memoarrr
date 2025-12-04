@@ -33,6 +33,7 @@ class Board {
     Card *getCard(const Letter &, const Number &);
     const Card *getCard(const Letter &, const Number &) const; // may be able to remove
     void setCard(const Letter &, const Number &, Card *);
+    void swapCards(const Letter &l1, const Number &n1, const Letter &l2, const Number &n2);
     void allFacesDown();
 
     friend std::ostream &operator<<(std::ostream &os, const Board &b);

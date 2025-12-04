@@ -126,8 +126,13 @@ class OctopusCard : public Card {
                 Card *currentCard = g.getCard(currL, currN);
                 Card *targetCard = g.getCard(l, n);
 
-                g.setCard(currL, currN, targetCard);
-                g.setCard(l, n, currentCard);
+                // Swap without using setCard (which deletes cards)
+                // We need to directly swap the pointers in the board
+                g.swapCards(currL, currN, l, n);
+
+                // Update the current position and card pointer to follow the swapped card
+                g.setCurrentPosition(l, n);
+                g.setCurrentCard(currentCard);
 
                 std::cout << "Swapped with " << letter << number << "!\n";
                 break;

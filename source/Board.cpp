@@ -104,6 +104,21 @@ void Board::setCard(const Letter &l, const Number &n, Card *c) {
     board[row][column] = c;
 }
 
+void Board::swapCards(const Letter &l1, const Number &n1, const Letter &l2, const Number &n2) {
+    validatePosition(l1, n1);
+    validatePosition(l2, n2);
+
+    int row1 = toIndex<Letter>(l1);
+    int col1 = toIndex<Number>(n1);
+    int row2 = toIndex<Letter>(l2);
+    int col2 = toIndex<Number>(n2);
+
+    // pointer swap - no deletion of cards
+    Card *temp = board[row1][col1];
+    board[row1][col1] = board[row2][col2];
+    board[row2][col2] = temp;
+}
+
 // Turns all cards face down (except center).
 void Board::allFacesDown() {
     for (int i = 0; i < GameParameters::BoardSize; ++i) {

@@ -44,6 +44,7 @@ class Game {
     Card *getCard(Board::Letter l, Board::Number n) { return board.getCard(l, n); }
     const Card *getCard(Board::Letter l, Board::Number n) const { return board.getCard(l, n); }
     void setCard(Board::Letter l, Board::Number n, Card *c) { board.setCard(l, n, c); }
+    void swapCards(Board::Letter l1, Board::Number n1, Board::Letter l2, Board::Number n2) { board.swapCards(l1, n1, l2, n2); }
 
     bool turnFaceUp(Board::Letter l, Board::Number n) { return board.turnFaceUp(l, n); }
     bool turnFaceDown(Board::Letter l, Board::Number n) { return board.turnFaceDown(l, n); }
