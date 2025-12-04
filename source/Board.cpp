@@ -9,8 +9,8 @@
 // Throws: OutOfRange if invalid.
 void Board::validatePosition(const Letter &l, const Number &n) const {
     int row = toIndex<Board::Letter>(l), column = toIndex<Board::Number>(n);
-    if (row < 0 || row >= GameParameters::BoardSize || column < 0 || column >= GameParameters::BoardSize ||
-        (row == GameParameters::CenterRow && column == GameParameters::CenterCol)) {
+    if (row < 0 || row >= GameParameters::BoardSize || column < 0 || column >= GameParameters::BoardSize
+        || (row == GameParameters::CenterRow && column == GameParameters::CenterCol)) {
         throw OutOfRange();
     }
 };
@@ -22,17 +22,18 @@ Board::Board() {
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
         for (int j = 0; j < GameParameters::BoardSize; ++j) {
             if (i == GameParameters::CenterRow && j == GameParameters::CenterCol) {
-                board[i][j] = nullptr; // blank center
+                board[i][j] = 0; // blank center
             } else {
                 board[i][j] = boardDeck.getNext();
-                if (!board[i][j])
-                    throw NoMoreCards();
+                if (!board[i][j]) throw NoMoreCards();
             }
         }
     }
 }
 
 // Destructs a Board, deleting all dynamically allocated Cards
+// Params: none.
+// Returns: nothing.
 Board::~Board() {
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
         for (int j = 0; j < GameParameters::BoardSize; ++j) {
@@ -75,8 +76,7 @@ const Card *Board::getCard(const Letter &l, const Number &n) const {
 bool Board::turnFaceUp(const Letter &l, const Number &n) {
     validatePosition(l, n);
     Card *card = getCard(l, n);
-    if (card->isFaceUp())
-        return false;
+    if (card->isFaceUp()) return false;
     card->turnFaceUp();
     return true;
 }
@@ -88,14 +88,14 @@ bool Board::turnFaceUp(const Letter &l, const Number &n) {
 bool Board::turnFaceDown(const Letter &l, const Number &n) {
     validatePosition(l, n);
     Card *card = getCard(l, n);
-    if (!card->isFaceUp())
-        return false;
+    if (!card->isFaceUp()) return false;
     card->turnFaceDown();
     return true;
 }
 
-// Sets a card at a position.
+// Sets a card at a position, deleting the old one if present.
 // Params: l (Letter), n (Number), c (pointer to Card).
+// Returns: nothing.
 // Throws: OutOfRange if invalid.
 void Board::setCard(const Letter &l, const Number &n, Card *c) {
     validatePosition(l, n);
@@ -104,6 +104,10 @@ void Board::setCard(const Letter &l, const Number &n, Card *c) {
     board[row][column] = c;
 }
 
+// Swaps two cards on the board without deleting them.
+// Params: l1,n1 and l2,n2 (positions).
+// Returns: nothing.
+// Throws: OutOfRange if any position invalid.
 void Board::swapCards(const Letter &l1, const Number &n1, const Letter &l2, const Number &n2) {
     validatePosition(l1, n1);
     validatePosition(l2, n2);
@@ -113,13 +117,14 @@ void Board::swapCards(const Letter &l1, const Number &n1, const Letter &l2, cons
     int row2 = toIndex<Letter>(l2);
     int col2 = toIndex<Number>(n2);
 
-    // pointer swap - no deletion of cards
-    Card *temp = board[row1][col1];
+    Card* temp = board[row1][col1];
     board[row1][col1] = board[row2][col2];
     board[row2][col2] = temp;
 }
 
-// Turns all cards face down (except center).
+// Turns all cards face down (including non-center cards).
+// Params: none.
+// Returns: nothing.
 void Board::allFacesDown() {
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
         for (int j = 0; j < GameParameters::BoardSize; ++j) {
@@ -133,20 +138,19 @@ void Board::allFacesDown() {
 // Prints the board line by line.
 // Params: os (output stream), b (const Board).
 // Returns: os for chaining.
-std::ostream &operator<<(std::ostream &os, const Board &b) {
+std::ostream& operator<<(std::ostream& os, const Board& b) {
     for (int row = 0; row < GameParameters::BoardSize; ++row) {
         for (int cardRow = 0; cardRow < GameParameters::NumRowsCard; ++cardRow) {
-            os << ((cardRow == GameParameters::NumRowsCard / 2) ? std::string(1, 'A' + row) : " ");
+            os << ((cardRow == GameParameters::NumRowsCard/2) ? std::string(1, 'A' + row) : " ");
             os << std::string(GameParameters::BoardPadding, ' ');
             for (int col = 0; col < GameParameters::BoardSize; ++col) {
-                const Card *card = b.board[row][col];
+                const Card* card = b.board[row][col];
                 if (card) {
                     os << (*card)(cardRow);
                 } else {
                     os << "   "; // Blank card
                 }
-                if (col < GameParameters::BoardSize - 1)
-                    os << ' '; // space between cards in row
+                if (col < GameParameters::BoardSize - 1) os << ' '; // space between cards in row
             }
             os << '\n';
         }
@@ -160,8 +164,8 @@ std::ostream &operator<<(std::ostream &os, const Board &b) {
     for (int i = 1; i <= GameParameters::BoardSize; ++i) {
         std::string num = std::to_string(i);
 
-        int leftPadding = (sizeOfCard - num.size()) / 2;
-        int rightPadding = sizeOfCard - leftPadding - num.size();
+        int leftPadding  = (sizeOfCard - static_cast<int>(num.size())) / 2;
+        int rightPadding = sizeOfCard - leftPadding - static_cast<int>(num.size());
 
         std::string belowCard(leftPadding, ' ');
         belowCard += num;

@@ -3,6 +3,9 @@
 #include "Player.h"
 #include "Rubis.h"
 
+// Adds the given Rubis value to this player's total.
+// Params: rubisToAdd (const Rubis&).
+// Returns: nothing.
 void Player::addRubis(const Rubis &rubisToAdd) { numRubies += int(rubisToAdd); }
 
 // Toggles display mode for end-of-game ruby reveal.

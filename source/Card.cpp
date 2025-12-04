@@ -32,6 +32,9 @@ static char backgroundLetter(Card::FaceBackground b) {
 
 /*############## CLASS DEFINITIONS ##################*/
 
+// Builds one horizontal slice (row) of the card drawing.
+// Params: row (row index inside the card).
+// Returns: string for that row.
 std::string Card::operator()(int row) const {
     if (!faceUp) return "zzz";
 
@@ -42,6 +45,9 @@ std::string Card::operator()(int row) const {
     return s;
 }
 
+// Prints the whole card by calling operator() for each internal row.
+// Params: os (output stream), c (const Card).
+// Returns: os for chaining.
 std::ostream& operator<<(std::ostream& os, const Card& c) {
     for (int row = 0; row < c.getNRows(); ++row) os << c(row) << '\n';
     return os;

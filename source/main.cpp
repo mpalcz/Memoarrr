@@ -7,8 +7,7 @@
 #include "Rubis.h"
 #include "RubisDeck.h"
 #include "Rules.h"
-#include "Exceptions.h"
-
+#include "Exceptions.h"        
 #include <iostream>
 #include <algorithm>
 #include <cctype>
@@ -16,12 +15,12 @@
 #include <limits>
 #include <sstream>
 #include <array>
-#include <string>
 
 using namespace std;
 
-// Function to clean up name from user input, getting rid of leading and trailing whitespace
-// and replacing multiple spaces with one in between names
+// Function to clean up name from user input, getting rid of leading and trailing whitespace and replacing multiple spaces with one in between names
+// Params: input (raw string from user).
+// Returns: cleaned string with single spaces and no leading/trailing spaces.
 string cleanInput(const string& input) {
     string s = input;
 
@@ -54,23 +53,15 @@ string cleanInput(const string& input) {
     return out.str();
 }
 
-// Checks if there are any facedown cards to flip (ignoring a Walrus-blocked card)
+// Checks if there are any facedown cards to flip (ignores the center).
+// Params: game (const Game&).
+// Returns: true if at least one card is face down, false otherwise.
 bool hasFaceDownCards(const Game& game) {
-    // walrus might block one card, so we dont count that one as a valid choice
-    auto blocked = game.getBlockedPosition();
-
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
         for (int j = 0; j < GameParameters::BoardSize; ++j) {
             if (i == GameParameters::CenterRow && j == GameParameters::CenterCol) continue;
-
             Board::Letter l = Board::getEnumAt<Board::Letter>(i);
             Board::Number n = Board::getEnumAt<Board::Number>(j);
-
-            // if walrus blocked this spot, skip it (player cant pick it anyway)
-            if (blocked && l == blocked->first && n == blocked->second) {
-                continue;
-            }
-
             if (!game.isFaceUp(l, n)) return true;
         }
     }
@@ -94,10 +85,7 @@ int main() {
     } while (find(validVersions.begin(), validVersions.end(), gameVersion) == validVersions.end());
 
     bool expertDisplay = (gameVersion == "expert display" || gameVersion == "both");
-    bool expertRules = (gameVersion == "expert rules" || gameVersion == "both");
-
-    // Create card deck first (must exist before Board constructor in Game)
-    CardDeck::make_CardDeck(expertRules);
+    bool expertRules   = (gameVersion == "expert rules"   || gameVersion == "both");
 
     // Get number of players from user 
     int num_players;
@@ -123,7 +111,7 @@ int main() {
     string name;
     for (int i = 0; i < num_players; ++i) {
         bool playerNameAttempted = false;
-        name.clear();
+        name.clear(); // reset between players so we do not reuse the last name
         while (name.empty() || find(playerNames.begin(), playerNames.end(), name) != playerNames.end()) {
             if (playerNameAttempted && name.empty()) cout << "Invalid input, please enter a name." << endl;
             else if (playerNameAttempted) cout << "Player name already exists. Please enter a new player name." << endl;
@@ -148,78 +136,71 @@ int main() {
         for (const Player& p : game.getPlayers()) {                    
             cout << "\n" << p.getName() << ", look at your 3 secret cards:\n";
 
-            vector<pair<Board::Letter, Board::Number>> peekCards;
+            vector<pair<Board::Letter, Board::Number> > peekCards;
             Player::Side playerSide = p.getSide();
             int middlepos = GameParameters::BoardSize / 2;
 
             switch (playerSide) {
                 case Player::Side::top: {
                     Board::Letter row = Board::getEnumAt<Board::Letter>(0);
-                    peekCards = {
-                        {row, Board::getEnumAt<Board::Number>(middlepos-1)}, 
-                        {row, Board::getEnumAt<Board::Number>(middlepos)}, 
-                        {row, Board::getEnumAt<Board::Number>(middlepos+1)}
-                    };
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos-1)));
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos)));
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos+1)));
                     break;
                 } 
                 case Player::Side::bottom: {
                     Board::Letter row = Board::getEnumAt<Board::Letter>(GameParameters::BoardSize - 1);
-                    peekCards = {
-                        {row, Board::getEnumAt<Board::Number>(middlepos-1)}, 
-                        {row, Board::getEnumAt<Board::Number>(middlepos)}, 
-                        {row, Board::getEnumAt<Board::Number>(middlepos+1)}
-                    };
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos-1)));
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos)));
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos+1)));
                     break;
                 } 
                 case Player::Side::left: {
                     Board::Number col = Board::getEnumAt<Board::Number>(0);
-                    peekCards = {
-                        {Board::getEnumAt<Board::Letter>(middlepos-1), col}, 
-                        {Board::getEnumAt<Board::Letter>(middlepos), col}, 
-                        {Board::getEnumAt<Board::Letter>(middlepos+1), col}
-                    };
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos-1), col));
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos), col));
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos+1), col));
                     break;
                 }
                 case Player::Side::right: {
                     Board::Number col = Board::getEnumAt<Board::Number>(GameParameters::BoardSize - 1);
-                    peekCards = {
-                        {Board::getEnumAt<Board::Letter>(middlepos-1), col}, 
-                        {Board::getEnumAt<Board::Letter>(middlepos), col}, 
-                        {Board::getEnumAt<Board::Letter>(middlepos+1), col}
-                    };
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos-1), col));
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos), col));
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos+1), col));
                     break;
                 }
             }
 
-            for (auto [l, n] : peekCards) game.turnFaceUp(l, n);
+            for (std::size_t i = 0; i < peekCards.size(); ++i) {
+                game.turnFaceUp(peekCards[i].first, peekCards[i].second);
+            }
             cout << '\n' << game << '\n';
 
             cout << "(press Enter when done)...";
             string dummy;
             getline(cin, dummy);
 
-            for (auto [l, n] : peekCards) game.turnFaceDown(l, n);
+            for (std::size_t i = 0; i < peekCards.size(); ++i) {
+                game.turnFaceDown(peekCards[i].first, peekCards[i].second);
+            }
         }
 
         // Round play
         while (!rules.roundOver(game)) {
-            Player& currentPlayer = game.getCurrentPlayer();
 
-            // skip inactive players
-            while (!currentPlayer.isActive()) {
+            // *** FIXED: do not assign through the reference, just keep advancing until we land on an active player ***
+            while (!game.getCurrentPlayer().isActive()) {
                 game.nextPlayer();
-                currentPlayer = game.getCurrentPlayer();
             }
+            Player& currentPlayer = game.getCurrentPlayer();
 
             cout << "\nTurn: " << currentPlayer.getName() << "\n";
 
-            // if there is nothing left to flip (except maybe a blocked card), player is just out this turn
             if (!hasFaceDownCards(game)) {
                 cout << "No more cards to flip - you lose this turn!\n";
                 currentPlayer.setActive(false);
-                // walrus still moves along even if they didnt flip anything
-                game.advanceWalrusEffect();
                 game.nextPlayer();
+                game.advanceWalrusEffect(); // end of this player's (empty) turn
                 continue;
             }
 
@@ -231,19 +212,19 @@ int main() {
                 cout << "Enter card - letter then number (ex. \"a1\" or \"B2\"): ";
                 getline(cin, userInput);
                 userInput = cleanInput(userInput);
-                if (userInput.size() != 2 || !(isalpha(userInput[0]) && isdigit(userInput[1]))) {
+                if (userInput.size() != 2 || !(isalpha(static_cast<unsigned char>(userInput[0])) && isdigit(static_cast<unsigned char>(userInput[1])))) {
                     cout << "Invalid input. Please try again." << endl; 
                     continue;
                 }
                 try {
-                    char card_letter = toupper(userInput[0]);
+                    char card_letter = static_cast<char>(toupper(static_cast<unsigned char>(userInput[0])));
                     int letter_index = card_letter - 'A';
 
                     int card_number = userInput[1] - '0';
                     int number_index = card_number - 1; 
 
-                    l = Board::getEnumAt<Board::Letter>(letter_index);
-                    n = Board::getEnumAt<Board::Number>(number_index);
+                    l = Board::getEnumAt<Board::Letter>(letter_index);          
+                    n = Board::getEnumAt<Board::Number>(number_index); 
                 } catch (const out_of_range& e) {
                     cout << "Input must be a number and letter in valid board range: Letter = [A-";
                     cout << static_cast<char>('A' + GameParameters::BoardSize - 1) << "], Number = [1-";
@@ -253,11 +234,11 @@ int main() {
                 userInputInvalid = false;
             }
 
-            // Check if blocked by Walrus
-            auto blocked = game.getBlockedPosition();
+            // Blocked position from Walrus (only relevant in expert rules).
+            std::optional<std::pair<Board::Letter, Board::Number> > blocked = game.getBlockedPosition();
             if (blocked && l == blocked->first && n == blocked->second) {
                 cout << "Blocked position - choose another!\n";
-                // dont advance walrus here, this is still same turn
+                // we do NOT advance the walrus effect here, since this is the same player's turn
                 continue;
             }
 
@@ -266,9 +247,8 @@ int main() {
                 if (!game.turnFaceUp(l, n)) {
                     cout << "Card already face up - you are out this round!\n";
                     currentPlayer.setActive(false);
-                    // this was still a "turn" for walrus purposes
-                    game.advanceWalrusEffect();
                     game.nextPlayer();
+                    game.advanceWalrusEffect(); // end of this player's turn
                     continue;
                 }
 
@@ -286,31 +266,32 @@ int main() {
                     currentPlayer.setActive(false);
                 } else {
                     cout << "Match!\n";
-                    // apply expert effects only after a succesful match
                     if (game.isExpertRules()) {
                         game.getCurrentCard()->applyEffect(game);
                     }
                 }
 
-                // walrus effect advances once at the end of each player's turn
-                game.advanceWalrusEffect();
-
-                if (!game.getExtraTurn()) game.nextPlayer();
+                if (!game.getExtraTurn()) {
+                    game.nextPlayer();
+                }
                 game.setExtraTurn(false); // Reset after potential extra turn
+
+                // End-of-turn walrus countdown
+                game.advanceWalrusEffect();
 
             } catch (const OutOfRange&) {                    
                 cout << "Invalid position - you are out this round!\n";
                 currentPlayer.setActive(false);
-                // still counts as a turn for walrus
-                game.advanceWalrusEffect();
                 game.nextPlayer();
+                game.advanceWalrusEffect(); // still a turn, so walrus should tick down
             }
         }
 
         // Round over - give rubies to the winner ===
         cout << "\n-------- ROUND " << game.getRound() << " OVER --------\n";
 
-        for (Player& p : game.getPlayers()) {                    
+        for (std::size_t i = 0; i < game.getPlayers().size(); ++i) {                    
+            Player& p = game.getPlayers()[i];
             if (p.isActive()) {
                 cout << p.getName() << " wins the round!\n";
 
@@ -333,16 +314,17 @@ int main() {
     cout << "#########################################################\n\n";
 
     // Show scores sorted from most to least rubies
-    // (we keep this as copy, only for printing at the end)
-    vector<Player> finalStandings = game.getPlayers();
+    vector<Player> finalStandings = game.getPlayers();        
     sort(finalStandings.begin(), finalStandings.end(),
          [](const Player& a, const Player& b) { return a.getNRubies() > b.getNRubies(); });
 
-    for (Player& p : finalStandings) p.setDisplayMode(true);
+    for (std::size_t i = 0; i < finalStandings.size(); ++i) {
+        finalStandings[i].setDisplayMode(true);
+    }
 
     cout << "Final scores (most to least rubies):\n";
-    for (const Player& p : finalStandings) {
-        cout << p;
+    for (std::size_t i = 0; i < finalStandings.size(); ++i) {
+        cout << finalStandings[i];
     }
 
     if (!finalStandings.empty()) {

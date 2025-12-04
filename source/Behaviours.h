@@ -1,196 +1,335 @@
-#ifndef BEHAVIOURS_H
-#define BEHAVIOURS_H
-
+// main.cpp: Entry point for the Memoarrr game. 
+#include "Board.h"
 #include "Card.h"
+#include "CardDeck.h"
 #include "Game.h"
-#include <cctype>
+#include "Player.h"
+#include "Rubis.h"
+#include "RubisDeck.h"
+#include "Rules.h"
+#include "Exceptions.h"        
 #include <iostream>
+#include <algorithm>
+#include <cctype>
+#include <vector>
 #include <limits>
-#include <string>
+#include <sstream>
+#include <array>
 
-// Crab - extra turn
-class CrabCard : public Card {
-  public:
-    CrabCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Crab, b) {}
+using namespace std;
 
-    void applyEffect(Game &g) const override {
-        g.setExtraTurn(true);
-        std::cout << "CRAB! You get an extra turn!\n";
-    }
-};
+// Function to clean up name from user input, getting rid of leading and trailing whitespace and replacing multiple spaces with one in between names
+// Params: input (raw string from user).
+// Returns: cleaned string with single spaces and no leading/trailing spaces.
+string cleanInput(const string& input) {
+    string s = input;
 
-// Penguin - turn a card face down
-class PenguinCard : public Card {
-  public:
-    PenguinCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Penguin, b) {}
+    // Trim any leading spaces
+    size_t start = s.find_first_not_of(' ');
+    if (start == string::npos)
+        return ""; // string was all spaces
+    s = s.substr(start);
 
-    void applyEffect(Game &g) const override {
-        // Skip the penguin if it is the first card flipped
-        if (!g.getPreviousCard()) return;
+    // Trim any trailing spaces
+    size_t end = s.find_last_not_of(' ');
+    s = s.substr(0, end + 1);
 
-        std::cout << "PENGUIN! Choose a face-up card to turn down (Letter Number, e.g., A 1 or B 3): ";
+    // Replace any multiple internal spaces with single spaces
+    ostringstream out;
+    bool inSpace = false;
 
-        char letter;
-        int number;
-        Board::Letter l;
-        Board::Number n;
-        Card *chosen;
-
-        while (true) {
-            std::cin.clear();
-
-            std::cin >> letter;
-            std::cin >> number;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-            letter = static_cast<char>(std::toupper(static_cast<unsigned char>(letter)));
-
-            if (letter < 'A' || letter > 'E' || number < 1 || number > 5) {
-                std::cout << "Invalid position! Try again (A-E, 1-5): ";
-                continue;
+    for (char c : s) {
+        if (c == ' ') {
+            if (!inSpace) {
+                out << ' ';
+                inSpace = true;
             }
-
-            l = static_cast<Board::Letter>(letter - 'A');
-            n = static_cast<Board::Number>(number - 1);
-
-            try {
-                chosen = g.getCard(l, n);
-
-                if (!chosen->isFaceUp()) {
-                    std::cout << "That card is face down! Choose a face-up card: ";
-                    continue;
-                }
-                if (l == g.getCurrentPosition().first && n == g.getCurrentPosition().second) {
-                    std::cout << "You can't turn down the card you just flipped! Try again: ";
-                    continue;
-                }
-
-                chosen->turnFaceDown();
-                std::cout << "Card at " << letter << number << " turned face down!\n";
-                break;
-
-            } catch (...) {
-                std::cout << "Invalid position! Try again: ";
-            }
+        } else {
+            out << c;
+            inSpace = false;
         }
     }
-};
 
-// OCTOPUS - swap with adjacent (fixed so it does NOT corrupt previousCard/currentCard)
-class OctopusCard : public Card {
-  public:
-    OctopusCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Octopus, b) {}
+    return out.str();
+}
 
-    void applyEffect(Game &g) const override {
-        Board::Letter currL = g.getCurrentPosition().first;
-        Board::Number currN = g.getCurrentPosition().second;
-        int currRow = static_cast<int>(currL);
-        int currCol = static_cast<int>(currN);
-
-        std::cout << "OCTOPUS! Choose an adjacent card to swap with (Letter Number, e.g., B 2): ";
-
-        char letter;
-        int number;
-        Board::Letter l;
-        Board::Number n;
-
-        while (true) {
-            std::cin >> letter;
-            std::cin >> number;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-            letter = static_cast<char>(std::toupper(static_cast<unsigned char>(letter)));
-
-            if (letter < 'A' || letter > 'E' || number < 1 || number > 5) {
-                std::cout << "Invalid position! Try again: ";
-                continue;
-            }
-
-            l = static_cast<Board::Letter>(letter - 'A');
-            n = static_cast<Board::Number>(number - 1);
-            int targetRow = static_cast<int>(l);
-            int targetCol = static_cast<int>(n);
-
-            // Must be exactly one step away (up/down/left/right)
-            if (std::abs(currRow - targetRow) + std::abs(currCol - targetCol) != 1) {
-                std::cout << "Must be directly adjacent! Try again: ";
-                continue;
-            }
-
-            try {
-                // Swap only the board pointers; the current card object is the same,
-                // just now located at (l, n). We do NOT change currentCard/previousCard here.
-                g.swapCards(currL, currN, l, n);
-
-                g.setCurrentPosition(l, n);
-
-                std::cout << "Swapped with " << letter << number << "!\n";
-                break;
-            } catch (...) {
-                std::cout << "Invalid swap! Try again: ";
-            }
+// Checks if there are any facedown cards to flip (ignores the center).
+// Params: game (const Game&).
+// Returns: true if at least one card is face down, false otherwise.
+bool hasFaceDownCards(const Game& game) {
+    for (int i = 0; i < GameParameters::BoardSize; ++i) {
+        for (int j = 0; j < GameParameters::BoardSize; ++j) {
+            if (i == GameParameters::CenterRow && j == GameParameters::CenterCol) continue;
+            Board::Letter l = Board::getEnumAt<Board::Letter>(i);
+            Board::Number n = Board::getEnumAt<Board::Number>(j);
+            if (!game.isFaceUp(l, n)) return true;
         }
     }
-};
+    return false;
+}
 
-// Turtle - skip next player
-class TurtleCard : public Card {
-  public:
-    TurtleCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Turtle, b) {}
+int main() {
+    cout << "WELCOME TO MEMOARRR!\n\n";
 
-    void applyEffect(Game &g) const override {
-        std::cout << "TURTLE! The next player is skipped!\n";
-        g.nextPlayer(); // skip the next player
+    // Get game version from user
+    string gameVersion;
+    const array<string, 4> validVersions = {"base", "expert display", "expert rules", "both"};
+    bool gameVersionAttempted = false;
+
+    do {
+        if (gameVersionAttempted) cout << "Invalid input. Please try again." << endl;
+        cout << "Choose game version (base/expert display/expert rules/both): ";
+        getline(cin, gameVersion);
+        gameVersion = cleanInput(gameVersion);
+        gameVersionAttempted = true;
+    } while (find(validVersions.begin(), validVersions.end(), gameVersion) == validVersions.end());
+
+    bool expertDisplay = (gameVersion == "expert display" || gameVersion == "both");
+    bool expertRules   = (gameVersion == "expert rules"   || gameVersion == "both");
+
+    // Get number of players from user 
+    int num_players;
+    string num_players_string;
+    bool numPlayersAttempted = false;
+
+    do {
+        if (numPlayersAttempted) cout << "Invalid input. Please try again." << endl;
+        cout << "Enter the number of Players [2-4]: ";
+        getline(cin, num_players_string);
+        num_players_string = cleanInput(num_players_string);
+        numPlayersAttempted = true;
+    } while (num_players_string.size() != 1 || !(num_players_string == "2" || num_players_string == "3" || num_players_string == "4"));
+
+    num_players = stoi(num_players_string);
+
+    // Initialize game instances to run Memoarrr
+    Game game(expertDisplay, expertRules);
+    Rules rules;
+    RubisDeck& rubisDeck = RubisDeck::make_RubisDeck();
+
+    vector<string> playerNames;
+    string name;
+    for (int i = 0; i < num_players; ++i) {
+        bool playerNameAttempted = false;
+        name.clear(); // reset between players so we do not reuse the last name
+        while (name.empty() || find(playerNames.begin(), playerNames.end(), name) != playerNames.end()) {
+            if (playerNameAttempted && name.empty()) cout << "Invalid input, please enter a name." << endl;
+            else if (playerNameAttempted) cout << "Player name already exists. Please enter a new player name." << endl;
+            cout << "Enter Player " << i + 1 << " name: ";
+            getline(cin, name);
+            name = cleanInput(name);
+            playerNameAttempted = true;
+        }
+        playerNames.push_back(name);
+        Player player(name, Board::getEnumAt<Player::Side>(i));
+        game.addPlayer(player);
     }
-};
+    cout << '\n' << game; // print the starting board
 
-// Walrus - Block a face down card (for the next active player's turn)
-class WalrusCard : public Card {
-  public:
-    WalrusCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Walrus, b) {}
+    // MAIN LOOP
+    while (!rules.gameOver(game)) {
+        cout << "\n-------- BEGINNING OF ROUND " << game.getRound() + 1 << " --------\n";
 
-    void applyEffect(Game &g) const override {
-        std::cout << "WALRUS! Choose a face-down card to block (Letter Number, e.g., C 4): ";
+        game.startNewRound(); // face down all cards + activate all players + reset current/previous
 
-        char letter;
-        int number;
-        Board::Letter l;
-        Board::Number n;
-        Card *chosen;
+        //  Temporarily reveal 3 cards directly in front of each player
+        for (const Player& p : game.getPlayers()) {                    
+            cout << "\n" << p.getName() << ", look at your 3 secret cards:\n";
 
-        while (true) {
-            std::cin >> letter;
-            std::cin >> number;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            vector<pair<Board::Letter, Board::Number> > peekCards;
+            Player::Side playerSide = p.getSide();
+            int middlepos = GameParameters::BoardSize / 2;
 
-            letter = static_cast<char>(std::toupper(static_cast<unsigned char>(letter)));
+            switch (playerSide) {
+                case Player::Side::top: {
+                    Board::Letter row = Board::getEnumAt<Board::Letter>(0);
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos-1)));
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos)));
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos+1)));
+                    break;
+                } 
+                case Player::Side::bottom: {
+                    Board::Letter row = Board::getEnumAt<Board::Letter>(GameParameters::BoardSize - 1);
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos-1)));
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos)));
+                    peekCards.push_back(make_pair(row, Board::getEnumAt<Board::Number>(middlepos+1)));
+                    break;
+                } 
+                case Player::Side::left: {
+                    Board::Number col = Board::getEnumAt<Board::Number>(0);
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos-1), col));
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos), col));
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos+1), col));
+                    break;
+                }
+                case Player::Side::right: {
+                    Board::Number col = Board::getEnumAt<Board::Number>(GameParameters::BoardSize - 1);
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos-1), col));
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos), col));
+                    peekCards.push_back(make_pair(Board::getEnumAt<Board::Letter>(middlepos+1), col));
+                    break;
+                }
+            }
 
-            if (letter < 'A' || letter > 'E' || number < 1 || number > 5) {
-                std::cout << "Invalid position! Try again: ";
+            for (std::size_t i = 0; i < peekCards.size(); ++i) {
+                game.turnFaceUp(peekCards[i].first, peekCards[i].second);
+            }
+            cout << '\n' << game << '\n';
+
+            cout << "(press Enter when done)...";
+            string dummy;
+            getline(cin, dummy);
+
+            for (std::size_t i = 0; i < peekCards.size(); ++i) {
+                game.turnFaceDown(peekCards[i].first, peekCards[i].second);
+            }
+        }
+
+        // Round play
+        while (!rules.roundOver(game)) {
+
+            // *** FIXED: do not assign through the reference, just keep advancing until we land on an active player ***
+            while (!game.getCurrentPlayer().isActive()) {
+                game.nextPlayer();
+            }
+            Player& currentPlayer = game.getCurrentPlayer();
+
+            cout << "\nTurn: " << currentPlayer.getName() << "\n";
+
+            if (!hasFaceDownCards(game)) {
+                cout << "No more cards to flip - you lose this turn!\n";
+                currentPlayer.setActive(false);
+                game.nextPlayer();
+                game.advanceWalrusEffect(); // end of this player's (empty) turn
                 continue;
             }
 
-            l = static_cast<Board::Letter>(letter - 'A');
-            n = static_cast<Board::Number>(number - 1);
+            string userInput;
+            bool userInputInvalid = true;
+            Board::Letter l;
+            Board::Number n;
+            while (userInputInvalid) {
+                cout << "Enter card - letter then number (ex. \"a1\" or \"B2\"): ";
+                getline(cin, userInput);
+                userInput = cleanInput(userInput);
+                if (userInput.size() != 2 || !(isalpha(static_cast<unsigned char>(userInput[0])) && isdigit(static_cast<unsigned char>(userInput[1])))) {
+                    cout << "Invalid input. Please try again." << endl; 
+                    continue;
+                }
+                try {
+                    char card_letter = static_cast<char>(toupper(static_cast<unsigned char>(userInput[0])));
+                    int letter_index = card_letter - 'A';
+
+                    int card_number = userInput[1] - '0';
+                    int number_index = card_number - 1; 
+
+                    l = Board::getEnumAt<Board::Letter>(letter_index);          
+                    n = Board::getEnumAt<Board::Number>(number_index); 
+                } catch (const out_of_range& e) {
+                    cout << "Input must be a number and letter in valid board range: Letter = [A-";
+                    cout << static_cast<char>('A' + GameParameters::BoardSize - 1) << "], Number = [1-";
+                    cout << GameParameters::BoardSize << "]. Please try again." << endl;
+                    continue;
+                }
+                userInputInvalid = false;
+            }
+
+            // Blocked position from Walrus (only relevant in expert rules).
+            std::optional<std::pair<Board::Letter, Board::Number> > blocked = game.getBlockedPosition();
+            if (blocked && l == blocked->first && n == blocked->second) {
+                cout << "Blocked position - choose another!\n";
+                // we do NOT advance the walrus effect here, since this is the same player's turn
+                continue;
+            }
 
             try {
-                chosen = g.getCard(l, n);
-
-                if (chosen->isFaceUp()) {
-                    std::cout << "Card must be face down! Try again: ";
+                // Flip the card
+                if (!game.turnFaceUp(l, n)) {
+                    cout << "Card already face up - you are out this round!\n";
+                    currentPlayer.setActive(false);
+                    game.nextPlayer();
+                    game.advanceWalrusEffect(); // end of this player's turn
                     continue;
                 }
 
-                // Now Game tracks this as "blocked for next active player's turn"
-                g.setBlockedPosition(l, n);
-                std::cout << "Card at " << letter << number << " is now BLOCKED for the next player!\n";
-                break;
+                game.setCurrentPosition(l, n);
+                game.setCurrentCard(game.getCard(l, n));
 
-            } catch (...) {
-                std::cout << "Invalid position! Try again: ";
+                cout << '\n' << game << '\n';
+
+                // Check match
+                if (game.getPreviousCard() == nullptr) {
+                    cout << "First card flipped!\n";
+                } else if (!rules.isValid(game)) {
+                    cout << "No match! " << currentPlayer.getName() << " is out this round.\n";
+                    game.turnFaceDown(l, n);
+                    currentPlayer.setActive(false);
+                } else {
+                    cout << "Match!\n";
+                    if (game.isExpertRules()) {
+                        game.getCurrentCard()->applyEffect(game);
+                    }
+                }
+
+                if (!game.getExtraTurn()) {
+                    game.nextPlayer();
+                }
+                game.setExtraTurn(false); // Reset after potential extra turn
+
+                // End-of-turn walrus countdown
+                game.advanceWalrusEffect();
+
+            } catch (const OutOfRange&) {                    
+                cout << "Invalid position - you are out this round!\n";
+                currentPlayer.setActive(false);
+                game.nextPlayer();
+                game.advanceWalrusEffect(); // still a turn, so walrus should tick down
             }
         }
-    }
-};
 
-#endif
+        // Round over - give rubies to the winner ===
+        cout << "\n-------- ROUND " << game.getRound() << " OVER --------\n";
+
+        for (std::size_t i = 0; i < game.getPlayers().size(); ++i) {                    
+            Player& p = game.getPlayers()[i];
+            if (p.isActive()) {
+                cout << p.getName() << " wins the round!\n";
+
+                Rubis* r = rubisDeck.getNext();
+                if (!r) {
+                    cout << "No more rubies!\n";
+                } else {
+                    p.addRubis(*r);
+                    cout << p.getName() << " receives " << *r << "\n";
+                }
+                break;
+            }
+        }
+        cout << "------------------------------\n";
+    }
+
+    // === Game over - final results ===
+    cout << "\n#########################################################\n";
+    cout << "##################### GAME OVER #########################\n";
+    cout << "#########################################################\n\n";
+
+    // Show scores sorted from most to least rubies
+    vector<Player> finalStandings = game.getPlayers();        
+    sort(finalStandings.begin(), finalStandings.end(),
+         [](const Player& a, const Player& b) { return a.getNRubies() > b.getNRubies(); });
+
+    for (std::size_t i = 0; i < finalStandings.size(); ++i) {
+        finalStandings[i].setDisplayMode(true);
+    }
+
+    cout << "Final scores (most to least rubies):\n";
+    for (std::size_t i = 0; i < finalStandings.size(); ++i) {
+        cout << finalStandings[i];
+    }
+
+    if (!finalStandings.empty()) {
+        cout << "\n-------- " << finalStandings.front().getName() << " WINS THE GAME!!! --------\n";
+    }
+
+    return 0;
+}
