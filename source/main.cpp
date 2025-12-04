@@ -300,7 +300,6 @@ int main() {
                     cout << "First card flipped!\n";
                 } else if (!rules.isValid(game)) {
                     cout << "No match! " << currentPlayer.getName() << " is out this round.\n";
-                    //game.turnFaceDown(l, n);
                     currentPlayer.setActive(false);
                 } else {
                     cout << "Match!\n";
