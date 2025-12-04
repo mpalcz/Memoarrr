@@ -49,6 +49,12 @@ string cleanInput(const string &input) {
 
     return out.str();
 }
+void debugPrintPlayers(const Game &game, const string &location) {
+    cout << "DEBUG [" << location << "]: Players in game: " << game.getPlayers().size() << "\n";
+    for (const auto &p : game.getPlayers()) {
+        cout << "  - " << p.getName() << " (active: " << p.isActive() << ")\n";
+    }
+}
 
 // Checks if there are any facedown cards to flip
 bool hasFaceDownCards(const Game &game) {
@@ -228,53 +234,55 @@ int main() {
         }
 
         // Round play
+        // PLAY ROUND
         while (!rules.roundOver(game)) {
-            Player &currentPlayer = game.getCurrentPlayer();
-
-            // skip inactive players
-            while (!currentPlayer.isActive()) {
-                game.nextPlayer();
-                currentPlayer = game.getCurrentPlayer();
+            // DEBUG: Print player list
+            cout << "\n[DEBUG] Player list at start of turn:\n";
+            for (const auto &p : game.getPlayers()) {
+                cout << "  " << p.getName() << " (active: " << p.isActive() << ")\n";
             }
 
-            cout << "\nTurn: " << currentPlayer.getName() << "\n";
+            Player &current = game.getCurrentPlayer();
+
+            // Skip past any inactive players
+            while (!current.isActive()) {
+                game.nextPlayer();
+                current = game.getCurrentPlayer();
+            }
+
+            cout << "\nTurn: " << current.getName() << "\n";
+
             if (!hasFaceDownCards(game)) {
                 cout << "No more cards to flip - you lose this turn!\n";
-                currentPlayer.setActive(false);
+                current.setActive(false);
                 game.nextPlayer();
-                continue;
+                continue; // Let the while loop check roundOver
             }
 
-            string userInput;
-            bool userInputInvalid = true;
+            // Get valid position
             Board::Letter l;
             Board::Number n;
-            while (userInputInvalid) {
+            string userInput;
+            while (true) {
                 cout << "Enter card - letter then number (ex. \"a1\" or \"B2\"): ";
                 getline(cin, userInput);
                 userInput = cleanInput(userInput);
-                if (userInput.size() != 2 || !(isalpha(userInput[0]) && isdigit(userInput[1]))) {
-                    cout << "Invalid input. Please try again." << endl;
+                if (userInput.size() != 2 || !isalpha(userInput[0]) || !isdigit(userInput[1])) {
+                    cout << "Invalid input. Please try again.\n";
                     continue;
                 }
-                try {
-                    char card_letter = toupper(userInput[0]);
-                    int letter_index = card_letter - 'A';
-
-                    int card_number = userInput[1] - '0';
-                    int number_index = card_number - 1;
-
-                    l = Board::getEnumAt<Board::Letter>(letter_index);
-                    n = Board::getEnumAt<Board::Number>(number_index);
-                } catch (const out_of_range &e) {
-                    cout << "Input must be a number and letter in valid board range: Letter = [A-";
-                    cout << static_cast<char>('A' + GameParameters::BoardSize - 1) << "], Number = [1-";
-                    cout << GameParameters::BoardSize << "]. Please try again." << endl;
+                char let = toupper(userInput[0]);
+                int num = userInput[1] - '0';
+                if (let < 'A' || let > 'E' || num < 1 || num > 5) {
+                    cout << "Position out of range. Try again.\n";
                     continue;
                 }
-                userInputInvalid = false;
+                l = Board::getEnumAt<Board::Letter>(let - 'A');
+                n = Board::getEnumAt<Board::Number>(num - 1);
+                break;
             }
 
+            // Check if blocked by Walrus
             auto blocked = game.getBlockedPosition();
             if (blocked && l == blocked->first && n == blocked->second) {
                 cout << "Blocked position - choose another!\n";
@@ -282,43 +290,67 @@ int main() {
             }
 
             try {
-                // Flip the card
+                // Try to flip the card
                 if (!game.turnFaceUp(l, n)) {
                     cout << "Card already face up - you are out this round!\n";
-                    currentPlayer.setActive(false);
+                    current.setActive(false);
                     game.nextPlayer();
-                    continue;
+                    continue; // Let the while loop check roundOver
                 }
 
                 game.setCurrentPosition(l, n);
                 game.setCurrentCard(game.getCard(l, n));
-
                 cout << '\n' << game << '\n';
 
-                // Check match
+                // Check for match (skip if first card)
                 if (game.getPreviousCard() == nullptr) {
                     cout << "First card flipped!\n";
                     if (game.isExpertRules()) {
                         game.getCurrentCard()->applyEffect(game);
                     }
                 } else if (!rules.isValid(game)) {
-                    cout << "No match! " << currentPlayer.getName() << " is out this round.\n";
-                    currentPlayer.setActive(false);
+                    cout << "No match! " << current.getName() << " is out this round.\n";
+                    current.setActive(false);
+                    game.nextPlayer();
+                    continue; // Let the while loop check roundOver
                 } else {
                     cout << "Match!\n";
+                    // Apply expert rules effects ONLY on successful match
                     if (game.isExpertRules()) {
                         game.getCurrentCard()->applyEffect(game);
                     }
                 }
 
-                if (!game.getExtraTurn())
+                // Turn progression with turtle skip handling
+                if (!game.getExtraTurn()) {
                     game.nextPlayer();
-                game.setExtraTurn(false); // Reset after potential extra turn
+
+                    // If Turtle card was played, skip the next ACTIVE player
+                    if (game.getSkipNextPlayer()) {
+                        int attempts = 0;
+                        int maxAttempts = game.getPlayers().size();
+
+                        // Find next active player
+                        while (attempts < maxAttempts && !game.getCurrentPlayer().isActive()) {
+                            game.nextPlayer();
+                            attempts++;
+                        }
+
+                        // Skip this active player (if one exists)
+                        if (attempts < maxAttempts && game.getCurrentPlayer().isActive()) {
+                            game.nextPlayer();
+                        }
+
+                        game.setSkipNextPlayer(false);
+                    }
+                }
+                game.setExtraTurn(false);
 
             } catch (const OutOfRange &) {
                 cout << "Invalid position - you are out this round!\n";
-                currentPlayer.setActive(false);
+                current.setActive(false);
                 game.nextPlayer();
+                continue; // Let the while loop check roundOver
             }
         }
 

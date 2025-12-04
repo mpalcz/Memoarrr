@@ -21,6 +21,7 @@ class Game {
     bool expertDisplayMode = false;
     bool expertRulesMode = false;
     bool extraTurn = false;
+    bool skipNextPlayer = false;
     std::pair<Board::Letter, Board::Number> currentPosition = {Board::Letter::A, Board::Number::One};
     std::optional<std::pair<Board::Letter, Board::Number>> blockedPosition; // Invalid initial (before walrus is in effect)
 
@@ -66,6 +67,7 @@ class Game {
         previousCard = currentCard = nullptr;
         currentPlayerIdx = 0;
         blockedPosition = std::nullopt; // Reset ??????????????????????????????????????
+        skipNextPlayer = false;
     }
 
     std::vector<Player> &getPlayers() { return players; }
@@ -78,6 +80,8 @@ class Game {
     std::pair<Board::Letter, Board::Number> getCurrentPosition() const { return currentPosition; }
     void setBlockedPosition(Board::Letter l, Board::Number n) { blockedPosition = {l, n}; }
     std::optional<std::pair<Board::Letter, Board::Number>> getBlockedPosition() const { return blockedPosition; } // rename the type???
+    void setSkipNextPlayer(bool skip) { skipNextPlayer = skip; }
+    bool getSkipNextPlayer() const { return skipNextPlayer; }
 
     friend std::ostream &operator<<(std::ostream &os, const Game &g);
 };

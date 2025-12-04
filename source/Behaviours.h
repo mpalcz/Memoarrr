@@ -149,7 +149,7 @@ class TurtleCard : public Card {
 
     void applyEffect(Game &g) const override {
         std::cout << "TURTLE! The next player is skipped!\n";
-        g.nextPlayer(); // skip the next player
+        g.setSkipNextPlayer(true);
     }
 };
 
