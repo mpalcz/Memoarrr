@@ -258,6 +258,9 @@ int main() {
                 // Check match
                 if (game.getPreviousCard() == nullptr) {
                     cout << "First card flipped!\n";
+                    if (game.isExpertRules()) {
+                        game.getCurrentCard()->applyEffect(game);
+                    }
                 } else if (!rules.isValid(game)) {
                     cout << "No match! " << currentPlayer.getName() << " is out this round.\n";
                     game.turnFaceDown(l, n);
