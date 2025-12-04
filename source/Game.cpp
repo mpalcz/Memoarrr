@@ -35,7 +35,7 @@ std::ostream& operator<<(std::ostream& os, const Game& g) {
             os << '\n';
         }
 
-        // Center positions under each card
+        // Center positions under each card in the display
         for (const auto& p : faceUps) {
             int cardWidth = GameParameters::NumRowsCard;  
             int totalWidth = cardWidth + 2;                
