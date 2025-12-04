@@ -25,9 +25,11 @@ class PenguinCard : public Card {
     PenguinCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Penguin, b) {}
 
     void applyEffect(Game &g) const override {
+        // Skip the penguin if it is the first card flipped
+        if (!g.getPreviousCard()) return;
+
         std::cout << "PENGUIN! Choose a face-up card to turn down (Letter Number, e.g., A 1 or B 3): ";
 
-        std::string input;
         char letter;
         int number;
         Board::Letter l;
@@ -35,19 +37,14 @@ class PenguinCard : public Card {
         Card *chosen;
 
         while (true) {
-            // Clear any leftover input
             std::cin.clear();
 
-            // Read letter and number with space OR without space
             std::cin >> letter;
             std::cin >> number;
-
-            // Clear rest of line
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-            letter = toupper(letter);
+            letter = static_cast<char>(std::toupper(static_cast<unsigned char>(letter)));
 
-            // Validate input range
             if (letter < 'A' || letter > 'E' || number < 1 || number > 5) {
                 std::cout << "Invalid position! Try again (A-E, 1-5): ";
                 continue;
@@ -59,7 +56,6 @@ class PenguinCard : public Card {
             try {
                 chosen = g.getCard(l, n);
 
-                // Must be face-up and NOT the current card
                 if (!chosen->isFaceUp()) {
                     std::cout << "That card is face down! Choose a face-up card: ";
                     continue;
@@ -69,7 +65,6 @@ class PenguinCard : public Card {
                     continue;
                 }
 
-                // Success!
                 chosen->turnFaceDown();
                 std::cout << "Card at " << letter << number << " turned face down!\n";
                 break;
@@ -81,7 +76,7 @@ class PenguinCard : public Card {
     }
 };
 
-// OCTOPUS - swap with adjacent
+// OCTOPUS - swap with adjacent (fixed so it does NOT corrupt previousCard/currentCard)
 class OctopusCard : public Card {
   public:
     OctopusCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Octopus, b) {}
@@ -104,7 +99,7 @@ class OctopusCard : public Card {
             std::cin >> number;
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-            letter = toupper(letter);
+            letter = static_cast<char>(std::toupper(static_cast<unsigned char>(letter)));
 
             if (letter < 'A' || letter > 'E' || number < 1 || number > 5) {
                 std::cout << "Invalid position! Try again: ";
@@ -117,21 +112,17 @@ class OctopusCard : public Card {
             int targetCol = static_cast<int>(n);
 
             // Must be exactly one step away (up/down/left/right)
-            if (abs(currRow - targetRow) + abs(currCol - targetCol) != 1) {
+            if (std::abs(currRow - targetRow) + std::abs(currCol - targetCol) != 1) {
                 std::cout << "Must be directly adjacent! Try again: ";
                 continue;
             }
 
             try {
-                Card *currentCard = g.getCard(currL, currN);
-
-                // Swap without using setCard (which deletes cards)
-                // We need to directly swap the pointers in the board
+                // Swap only the board pointers; the current card object is the same,
+                // just now located at (l, n). We do NOT change currentCard/previousCard here.
                 g.swapCards(currL, currN, l, n);
 
-                // Update the current position and card pointer to follow the swapped card
                 g.setCurrentPosition(l, n);
-                g.setCurrentCard(currentCard);
 
                 std::cout << "Swapped with " << letter << number << "!\n";
                 break;
@@ -153,7 +144,7 @@ class TurtleCard : public Card {
     }
 };
 
-// Walrus - Block a face down card
+// Walrus - Block a face down card (for the next active player's turn)
 class WalrusCard : public Card {
   public:
     WalrusCard(Card::FaceBackground b) : Card(Card::FaceAnimal::Walrus, b) {}
@@ -172,7 +163,7 @@ class WalrusCard : public Card {
             std::cin >> number;
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-            letter = toupper(letter);
+            letter = static_cast<char>(std::toupper(static_cast<unsigned char>(letter)));
 
             if (letter < 'A' || letter > 'E' || number < 1 || number > 5) {
                 std::cout << "Invalid position! Try again: ";
@@ -190,12 +181,12 @@ class WalrusCard : public Card {
                     continue;
                 }
 
+                // Now Game tracks this as "blocked for next active player's turn"
                 g.setBlockedPosition(l, n);
-                std::cout << "Card at " << letter << number << " is now BLOCKED!\n";
+                std::cout << "Card at " << letter << number << " is now BLOCKED for the next player!\n";
                 break;
 
             } catch (...) {
-                // catch any other issue
                 std::cout << "Invalid position! Try again: ";
             }
         }

@@ -22,10 +22,17 @@ class Game {
     bool expertRulesMode = false;
     bool extraTurn = false;
     std::pair<Board::Letter, Board::Number> currentPosition = {Board::Letter::A, Board::Number::One};
-    std::optional<std::pair<Board::Letter, Board::Number>> blockedPosition; // Invalid initial (before walrus is in effect)
+
+    // Walrus effect: block one position for the *next* active player only
+    std::optional<std::pair<Board::Letter, Board::Number>> blockedPosition;
+    int walrusTurnsRemaining = 0; // counts down: 2 (set by Walrus) → 1 (next player) → 0 (cleared)
 
   public:
-    Game(bool ed = false, bool er = false) : expertDisplayMode(ed), expertRulesMode(er), blockedPosition(std::nullopt) {}
+    Game(bool ed = false, bool er = false)
+        : expertDisplayMode(ed),
+          expertRulesMode(er),
+          blockedPosition(std::nullopt),
+          walrusTurnsRemaining(0) {}
 
     int getRound() const { return round; }
 
@@ -44,7 +51,9 @@ class Game {
     Card *getCard(Board::Letter l, Board::Number n) { return board.getCard(l, n); }
     const Card *getCard(Board::Letter l, Board::Number n) const { return board.getCard(l, n); }
     void setCard(Board::Letter l, Board::Number n, Card *c) { board.setCard(l, n, c); }
-    void swapCards(Board::Letter l1, Board::Number n1, Board::Letter l2, Board::Number n2) { board.swapCards(l1, n1, l2, n2); }
+    void swapCards(Board::Letter l1, Board::Number n1, Board::Letter l2, Board::Number n2) {
+        board.swapCards(l1, n1, l2, n2);
+    }
 
     bool turnFaceUp(Board::Letter l, Board::Number n) { return board.turnFaceUp(l, n); }
     bool turnFaceDown(Board::Letter l, Board::Number n) { return board.turnFaceDown(l, n); }
@@ -65,7 +74,8 @@ class Game {
             p.setActive(true);
         previousCard = currentCard = nullptr;
         currentPlayerIdx = 0;
-        blockedPosition = std::nullopt; // Reset ??????????????????????????????????????
+        blockedPosition = std::nullopt;
+        walrusTurnsRemaining = 0;
     }
 
     std::vector<Player> &getPlayers() { return players; }
@@ -76,8 +86,37 @@ class Game {
     bool getExtraTurn() const { return extraTurn; }
     void setCurrentPosition(Board::Letter l, Board::Number n) { currentPosition = {l, n}; }
     std::pair<Board::Letter, Board::Number> getCurrentPosition() const { return currentPosition; }
-    void setBlockedPosition(Board::Letter l, Board::Number n) { blockedPosition = {l, n}; }
-    std::optional<std::pair<Board::Letter, Board::Number>> getBlockedPosition() const { return blockedPosition; } // rename the type???
+
+    // Walrus helpers
+    void setBlockedPosition(Board::Letter l, Board::Number n) {
+        blockedPosition = {l, n};
+        // 2 turns: current player (who revealed Walrus), then NEXT player.
+        // We decrement at the *end* of each player's turn.
+        walrusTurnsRemaining = 2;
+    }
+
+    void clearBlockedPosition() {
+        blockedPosition = std::nullopt;
+        walrusTurnsRemaining = 0;
+    }
+
+    // Call once at the END of each player's turn
+    void advanceWalrusEffect() {
+        if (!blockedPosition.has_value()) return;
+        if (walrusTurnsRemaining > 0) {
+            --walrusTurnsRemaining;
+            if (walrusTurnsRemaining == 0) {
+                blockedPosition = std::nullopt;
+            }
+        } else {
+            // Safety: if we somehow got here with 0 but still blocked, clear it.
+            blockedPosition = std::nullopt;
+        }
+    }
+
+    std::optional<std::pair<Board::Letter, Board::Number>> getBlockedPosition() const {
+        return blockedPosition;
+    }
 
     friend std::ostream &operator<<(std::ostream &os, const Game &g);
 };
