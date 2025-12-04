@@ -126,7 +126,7 @@ int main() {
     }
     cout << '\n' << game; // print the starting board
 
-    // MAIN LOOP
+    // Main loop
     while (!rules.gameOver(game)) {
         cout << "\n-------- BEGINNING OF ROUND " << game.getRound() + 1 << " --------\n";
 
@@ -188,7 +188,6 @@ int main() {
         // Round play
         while (!rules.roundOver(game)) {
 
-            // *** FIXED: do not assign through the reference, just keep advancing until we land on an active player ***
             while (!game.getCurrentPlayer().isActive()) {
                 game.nextPlayer();
             }
@@ -238,7 +237,6 @@ int main() {
             std::optional<std::pair<Board::Letter, Board::Number> > blocked = game.getBlockedPosition();
             if (blocked && l == blocked->first && n == blocked->second) {
                 cout << "Blocked position - choose another!\n";
-                // we do NOT advance the walrus effect here, since this is the same player's turn
                 continue;
             }
 
@@ -308,7 +306,6 @@ int main() {
         cout << "------------------------------\n";
     }
 
-    // === Game over - final results ===
     cout << "\n#########################################################\n";
     cout << "##################### GAME OVER #########################\n";
     cout << "#########################################################\n\n";

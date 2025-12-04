@@ -12,7 +12,7 @@ class CardDeck : public DeckFactory<Card> {
     CardDeck(bool expertRules);
 
   public:
-    // ==== Factory (singleton-style) ====
+    // Factory (singleton-style)
     // Builds or returns the single shared CardDeck.
     // Params: expertRules (bool) - if true use derived behaviour cards.
     // Returns: reference to static deck.

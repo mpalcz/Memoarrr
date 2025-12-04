@@ -10,11 +10,11 @@
 class Board {
 
   public:
-    // ==== Enums ====
+    // Enums
     enum class Letter { A, B, C, D, E };
-    enum class Number { One, Two, Three, Four, Five }; // enum elements have to be identifiers not integers
+    enum class Number { One, Two, Three, Four, Five };
 
-    // ==== Enum helper functions ====
+    // Enum helper functions
     template<typename Enum>
     static int toIndex(Enum e) { return static_cast<int>(e); }
 
@@ -24,11 +24,11 @@ class Board {
         return static_cast<Enum>(i);
     }
    
-    // ==== Constructor and Destructor ====
+    // Constructor and Destructor
     Board();
     ~Board();
 
-    // ==== Public interface ====
+    //Public interface
     bool isFaceUp(const Letter &l, const Number &n) const;
     bool turnFaceUp(const Letter &, const Number &);
     bool turnFaceDown(const Letter &, const Number &);
@@ -38,14 +38,14 @@ class Board {
     void swapCards(const Letter &l1, const Number &n1, const Letter &l2, const Number &n2);
     void allFacesDown();
 
-    // ==== Operators ====
+    //Operators
     friend std::ostream &operator<<(std::ostream &os, const Board &b);
 
   private:
-    // ==== Instance variables ====
+    //Instance variables
     Card* board[GameParameters::BoardSize][GameParameters::BoardSize] = {}; // 5x5 board of cards
 
-    // ==== Helpers ====
+    // Helpers
     void validatePosition(const Letter&, const Number&) const;
 };
 

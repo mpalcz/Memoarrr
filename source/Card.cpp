@@ -30,7 +30,7 @@ static char backgroundLetter(Card::FaceBackground b) {
     }
 }
 
-/*############## CLASS DEFINITIONS ##################*/
+// Class definitions
 
 // Builds one horizontal slice (row) of the card drawing.
 // Params: row (row index inside the card).

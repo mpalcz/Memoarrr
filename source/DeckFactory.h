@@ -12,11 +12,11 @@
 // Template param C is the card/rubis type.
 template<typename C> class DeckFactory {
   protected:
-    // ==== Instance variables ====
+    // Instance variables
     std::vector<C*> deck;
 
   public:
-    // ==== Destructor ====
+    // Destructor
     // Deletes all remaining pointers in deck.
     virtual ~DeckFactory() {
         for (auto p : deck) delete p;

@@ -11,14 +11,14 @@ class RubisDeck;
 
 // Represents a ruby reward token (1–4 rubies).
 class Rubis {
-  // ==== Friend classes ====
+  // Friend classes
   friend class RubisDeck; // establish friendship for private constructor access
 
   private:
-    // ==== Instance variables ====
+    // Instance variables
     int numRubies;
 
-    // ==== Constructor (private) ====
+    // Constructor (private)
     // Params: val (int rubies).
     // Throws: invalid_argument if val not in [1,4].
     Rubis(int val) {
@@ -28,7 +28,7 @@ class Rubis {
     }
 
   public:
-    // ==== Conversion operator ====
+    // Conversion operator
     operator int() const { return numRubies; }
 
     // Prints the Rubis as "1 ruby" or "2 rubies".

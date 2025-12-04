@@ -13,7 +13,7 @@
 // Holds the full game state: board, players, round, expert flags, etc.
 class Game {
   private:
-    // ==== Instance variables ====
+    // Instance variables
     Board board;
     std::vector<Player> players;
     int round = 0;
@@ -45,7 +45,7 @@ class Game {
           blockedPosition(std::nullopt),
           walrusTurnsRemaining(0) {}
 
-    // ==== Basic getters/setters ====
+    // Getters and setters
     int getRound() const { return round; }
 
     void addPlayer(const Player& p) { players.push_back(p); }
@@ -83,7 +83,7 @@ class Game {
 
     void allFacesDown() { board.allFacesDown(); }
 
-    // ==== Player turn helpers ====
+    // Player turn helpers
     Player& getCurrentPlayer() { return players[currentPlayerIdx]; }
     size_t getCurrentPlayerIndex() const { return currentPlayerIdx; }
     const Player& getCurrentPlayer() const { return players[currentPlayerIdx]; }
@@ -109,11 +109,11 @@ class Game {
         walrusTurnsRemaining = 0;
     }
 
-    // ==== Player list access ====
+    // Player list access
     std::vector<Player>& getPlayers() { return players; }
     const std::vector<Player>& getPlayers() const { return players; }
 
-    // ==== Expert flags ====
+    // Expert flags
     bool isExpertRules() const { return expertRulesMode; }
 
     void setExtraTurn(bool et) { extraTurn = et; }
@@ -122,7 +122,7 @@ class Game {
     void setCurrentPosition(Board::Letter l, Board::Number n) { currentPosition = std::make_pair(l, n); }
     std::pair<Board::Letter, Board::Number> getCurrentPosition() const { return currentPosition; }
 
-    // ==== Walrus helpers ====
+    // Walrus helpers
     // Stores a blocked position and sets countdown to 2 turns.
     void setBlockedPosition(Board::Letter l, Board::Number n) {
         blockedPosition = std::make_pair(l, n);
@@ -153,7 +153,7 @@ class Game {
         return blockedPosition;
     }
 
-    // ==== Operators ====
+    // Operators
     friend std::ostream& operator<<(std::ostream& os, const Game& g);
 };
 

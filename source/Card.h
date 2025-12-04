@@ -13,30 +13,30 @@ class Game;
 
 // Represents a single card with an animal and a background colour.
 class Card {
-  // ==== Friend classes ====
+  // Friend classes
   friend class CardDeck;
   friend class Board; // So Board can construct blank card
 
   public:
-    // ==== Card Enums ====
+    // Card Enums
     enum class FaceAnimal { Crab, Penguin, Octopus, Turtle, Walrus };
     enum class FaceBackground { Red, Green, Purple, Blue, Yellow };
 
   private:
-    // ==== Instance variables ====
+    // Instance variables
     FaceAnimal animal;
     FaceBackground background;
     bool faceUp = false;
 
   protected:
-    // ==== Constructors (protected so only friends / derived) ====
+    // Constructors (protected so only derived can access)
     Card(FaceAnimal a, FaceBackground b) : animal(a), background(b) {} // private constructor
    
   public:
-    // ==== Destructor ====
+    // Destructor
     virtual ~Card() = default; // virtual destructor
 
-    // ==== Conversion operators ====
+    // Conversion operators
     operator FaceAnimal() const { return animal; }
     operator FaceBackground() const { return background; }
 
@@ -45,7 +45,7 @@ class Card {
     // Returns: string with background + maybe animal letter.
     std::string operator()(int row) const;
 
-    // ==== Getters / setters ====
+    // Getters / setters
     bool isFaceUp() const { return faceUp; }
     void turnFaceUp() { faceUp = true; }
     void turnFaceDown() { faceUp = false; }

@@ -2,13 +2,14 @@
 #ifndef BEHAVIOURS_H
 #define BEHAVIOURS_H
 
+#include <cctype>
+#include <limits>
+#include <string>
+
 #include "Card.h"
 #include "Game.h"
 #include "Exceptions.h"
 #include <iostream>
-#include <cctype>
-#include <limits>
-#include <string>
 
 // Crab - extra turn
 class CrabCard : public Card {
