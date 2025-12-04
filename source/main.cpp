@@ -229,6 +229,17 @@ int main() {
 
         // Round play
         while (!rules.roundOver(game)) {
+            // first, move current index until we hit an active player
+            while (!game.getCurrentPlayer().isActive()) {
+                game.nextPlayer();
+            }
+
+            // now grab a reference to that active player
+            Player &currentPlayer = game.getCurrentPlayer();
+
+        /*
+        // Round play
+        while (!rules.roundOver(game)) {
             Player &currentPlayer = game.getCurrentPlayer();
 
             // skip inactive players
@@ -236,6 +247,7 @@ int main() {
                 game.nextPlayer();
                 currentPlayer = game.getCurrentPlayer();
             }
+            */
 
             cout << "\nTurn: " << currentPlayer.getName() << "\n";
             if (!hasFaceDownCards(game)) {

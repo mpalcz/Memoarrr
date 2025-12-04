@@ -69,7 +69,6 @@ class PenguinCard : public Card {
                     continue;
                 }
 
-                // Success!
                 chosen->turnFaceDown();
                 std::cout << "Card at " << letter << number << " turned face down!\n";
                 break;
