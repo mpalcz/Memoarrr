@@ -39,13 +39,14 @@ std::ostream &operator<<(std::ostream &os, const Game &g) {
         }
 
         // Center positions under each card in the display
-        for (const auto& p : faceUps) {
-            int cardWidth = GameParameters::NumRowsCard;  
-            int totalWidth = cardWidth + 2;                
-            std::string pos = p.second;          
+        for (const auto &p : faceUps) {
+            int cardWidth = GameParameters::NumRowsCard;
+            int totalWidth = cardWidth + 2;
+            std::string pos = p.second;
 
             int padding = (totalWidth - pos.size()) / 2;
-            if (padding < 0) padding = 0;
+            if (padding < 0)
+                padding = 0;
 
             os << std::string(padding, ' ') << pos << std::string(padding, ' ');
         }
@@ -57,5 +58,4 @@ std::ostream &operator<<(std::ostream &os, const Game &g) {
     for (const auto &p : g.players)
         os << p;
     return os;
-    
 }

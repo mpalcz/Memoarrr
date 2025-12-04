@@ -64,10 +64,10 @@ bool hasFaceDownCards(const Game &game) {
                 continue;
             Board::Letter l = Board::getEnumAt<Board::Letter>(i);
             Board::Number n = Board::getEnumAt<Board::Number>(j);
-            /*
-            Board::Letter l = static_cast<Board::Letter>(i);
-            Board::Number n = static_cast<Board::Number>(j);
-            */
+
+            // Board::Letter l = static_cast<Board::Letter>(i);
+            // Board::Number n = static_cast<Board::Number>(j);
+
             if (!game.isFaceUp(l, n))
                 return true;
         }
@@ -98,7 +98,7 @@ int main() {
     // initialize card deck with expert rules before Game
     CardDeck::make_CardDeck(expertRules);
 
-    // get number of players /// may need to edit so that it continuously reprompts
+    // get number of players // may need to edit so that it continuously reprompts
     int num_players;
     string num_players_string;
     bool numPlayersAttempted = false;
@@ -140,7 +140,7 @@ int main() {
     }
     cout << '\n' << game; // print the starting board
 
-    // === DEBUG: Reveal entire board at start ===
+    // Reveal entire board at start for debugging purposes
     cout << "\n=== DEBUG: FULL BOARD REVEAL ===\n";
 
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
@@ -173,7 +173,7 @@ int main() {
         }
     }
 
-    cout << "\n=== DEBUG: END FULL BOARD REVEAL ===\n\n";
+    cout << "\n### DEBUG: END FULL BOARD REVEAL ###\n\n";
 
     // MAIN LOOP
     while (!rules.gameOver(game)) {
@@ -233,7 +233,6 @@ int main() {
                 game.turnFaceDown(l, n);
         }
 
-        // Round play
         // PLAY ROUND
         while (!rules.roundOver(game)) {
             // DEBUG: Print player list
@@ -302,7 +301,7 @@ int main() {
                 game.setCurrentCard(game.getCard(l, n));
                 cout << '\n' << game << '\n';
 
-                // Check for match (skip if first card)
+                // check for match (skip if first card)
                 if (game.getPreviousCard() == nullptr) {
                     cout << "First card flipped!\n";
                     if (game.isExpertRules()) {
@@ -354,7 +353,7 @@ int main() {
             }
         }
 
-        // Round over - give rubies to the winner ===
+        // Round over - give rubies to the winner
         cout << "\n-------- ROUND " << game.getRound() << " OVER --------\n";
 
         for (Player &p : game.getPlayers()) {
@@ -374,7 +373,6 @@ int main() {
         cout << "------------------------------\n";
     }
 
-    // === Game over - final results ===
     cout << "\n#########################################################\n";
     cout << "##################### GAME OVER #########################\n";
     cout << "#########################################################\n\n";

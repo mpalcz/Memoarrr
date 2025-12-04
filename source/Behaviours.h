@@ -35,7 +35,7 @@ class PenguinCard : public Card {
         Card *chosen;
 
         while (true) {
-            // Clear any leftover input
+            // Clear any leftover input just incase
             std::cin.clear();
 
             // Read letter and number with space OR without space
@@ -59,7 +59,7 @@ class PenguinCard : public Card {
             try {
                 chosen = g.getCard(l, n);
 
-                // Must be face-up and NOT the current card
+                // Must be face up and not the current card
                 if (!chosen->isFaceUp()) {
                     std::cout << "That card is face down! Choose a face-up card: ";
                     continue;
@@ -69,7 +69,7 @@ class PenguinCard : public Card {
                     continue;
                 }
 
-                // Success!
+                // success
                 chosen->turnFaceDown();
                 std::cout << "Card at " << letter << number << " turned face down!\n";
                 break;
@@ -116,7 +116,7 @@ class OctopusCard : public Card {
             int targetRow = static_cast<int>(l);
             int targetCol = static_cast<int>(n);
 
-            // Must be exactly one step away (up/down/left/right)
+            // must be exactly one step away (up/down/left/right)
             if (abs(currRow - targetRow) + abs(currCol - targetCol) != 1) {
                 std::cout << "Must be directly adjacent! Try again: ";
                 continue;
