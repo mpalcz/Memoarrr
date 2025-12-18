@@ -17,14 +17,17 @@
 
 using namespace std;
 
-// Function to clean up name from user input, getting rid of leading and trailing whitespace and replacing multiple spaces with one in between names
+/*
+* Function to clean up console user input, getting rid of leading and trailing whitespace 
+* and replacing multiple spaces with single spaces in between words
+*/ 
 string cleanInput(const string& input) {
     string s = input;
 
     // Trim any leading spaces
     size_t start = s.find_first_not_of(' ');
-    if (start == string::npos)
-        return ""; // string was all spaces
+    if (start == string::npos) // string was all spaces
+        return ""; 
     s = s.substr(start);
 
     // Trim any trailing spaces
@@ -50,27 +53,49 @@ string cleanInput(const string& input) {
     return out.str();
 }
 
-// Checks if there are any facedown cards to flip
+/*
+* Function to capitalize player name
+*/
+
+string capitalizeName(const string& name) {
+    ostringstream capitalizedName;
+    bool firstCharacterOfWord = true;
+
+    for (char c : name) {
+        if (firstCharacterOfWord) {
+            capitalizedName << static_cast<char>(toupper(static_cast<unsigned char>(c)));
+            firstCharacterOfWord = false;
+        } else {
+            if (c == ' ') firstCharacterOfWord = true;
+            capitalizedName << c;
+        }
+    }
+
+    return capitalizedName.str();
+}
+
+/*
+* Function that checks if there are any facedown cards left to flip in the game
+*/ 
 bool hasFaceDownCards(const Game& game) {
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
         for (int j = 0; j < GameParameters::BoardSize; ++j) {
             if (i == GameParameters::CenterRow && j == GameParameters::CenterCol) continue;
             Board::Letter l = Board::getEnumAt<Board::Letter>(i);
             Board::Number n = Board::getEnumAt<Board::Number>(j);
-            /*
-            Board::Letter l = static_cast<Board::Letter>(i);
-            Board::Number n = static_cast<Board::Number>(j);
-            */
             if (!game.isFaceUp(l, n)) return true;
         }
     }
     return false;
 }
 
+/*
+* Main loop starting console gameplay
+*/ 
 int main() {
     cout << "WELCOME TO MEMOARRR!\n\n";
 
-    // Get game version from user
+    // ------ Get game version from user ------
     string gameVersion;
     const array<string, 4> validVersions = {"base", "expert display", "expert rules", "both"};
     bool gameVersionAttempted = false;
@@ -80,13 +105,15 @@ int main() {
         cout << "Choose game version (base/expert display/expert rules/both): ";
         getline(cin, gameVersion);
         gameVersion = cleanInput(gameVersion);
+        transform(gameVersion.begin(), gameVersion.end(), gameVersion.begin(), [](unsigned char c){ return tolower(c); });
         gameVersionAttempted = true;
     } while (find(validVersions.begin(), validVersions.end(), gameVersion) == validVersions.end());
 
     bool expertDisplay = (gameVersion == "expert display" || gameVersion == "both");
     bool expertRules = (gameVersion == "expert rules" || gameVersion == "both");
+    // ------------------------------------------
 
-    // Get number of players from user 
+    // ------ Get number of players from user ------
     int num_players;
     string num_players_string;
     bool numPlayersAttempted = false;
@@ -100,27 +127,28 @@ int main() {
     } while (num_players_string.size() != 1 || !(num_players_string == "2" || num_players_string == "3" || num_players_string == "4"));
 
     num_players = stoi(num_players_string);
+    // ---------------------------------------------
 
-    // Initialize game instances to run Memoarrr
+    // Initialize game and related instances to run Memoarrr!
     Game game(expertDisplay, expertRules);
     Rules rules;
     RubisDeck& rubisDeck = RubisDeck::make_RubisDeck();
 
-    vector<string> playerNames;
+    // ------ Get names of players from user ------
+    vector<string> playerNames(num_players);
     string name;
     for (int i = 0; i < num_players; ++i) {
         bool playerNameAttempted = false;
-        while (name.empty() || find(playerNames.begin(), playerNames.end(), name) != playerNames.end()) {
-            if (playerNameAttempted && name.empty()) cout << "Invalid input, please enter a name." << endl;
+        do {
+            if (playerNameAttempted && name.empty()) cout << "Invalid input, please enter a non-empty name." << endl;
             else if (playerNameAttempted) cout << "Player name already exists. Please enter a new player name." << endl;
-            cout << "Enter Player " << i + 1 << " name: ";
+            cout << "Enter Player " << i+1 << " name: ";
             getline(cin, name);
-            name = cleanInput(name);
+            name = capitalizeName(cleanInput(name));
             playerNameAttempted = true;
-        }
+        } while (name.empty() || find(playerNames.begin(), playerNames.end(), name) != playerNames.end());
         playerNames.push_back(name);
         Player player(name, Board::getEnumAt<Player::Side>(i));
-
         game.addPlayer(player);
     }
     cout << '\n' << game; // print the starting board

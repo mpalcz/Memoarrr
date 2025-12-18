@@ -28,7 +28,7 @@ class Board {
     ~Board();
 
     // Public interface
-    bool isFaceUp(const Letter &l, const Number &n) const;
+    bool isFaceUp(const Letter &, const Number &) const;
     bool turnFaceUp(const Letter &, const Number &);
     bool turnFaceDown(const Letter &, const Number &);
     Card *getCard(const Letter &, const Number &);

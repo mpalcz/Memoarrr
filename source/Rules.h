@@ -10,7 +10,7 @@ class Rules {
     bool isValid(const Game &) const;
     bool gameOver(const Game &) const;
     bool roundOver(const Game &) const;
-    const Player &getNextPlayer(const Game & ) const;
+    const Player &getNextPlayer(const Game &) const;
 };
 
 #endif
