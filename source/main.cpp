@@ -129,7 +129,7 @@ int main() {
     num_players = stoi(num_players_string);
     // ---------------------------------------------
 
-    // Initialize game and related instances to run Memoarrr!
+    // Initialize game and related instances
     Game game(expertDisplay, expertRules);
     Rules rules;
     RubisDeck& rubisDeck = RubisDeck::make_RubisDeck();
@@ -213,7 +213,6 @@ int main() {
             cout << "(press Enter when done)...";
             string dummy;
             getline(cin, dummy);
-            //cin.get();
 
             for (auto [l, n] : peekCards) game.turnFaceDown(l, n);
         }
@@ -222,7 +221,7 @@ int main() {
         while (!rules.roundOver(game)) {
             Player& currentPlayer = game.getCurrentPlayer();
 
-            // skip inactive players
+            // Skip inactive players
             while (!currentPlayer.isActive()) {
                 game.nextPlayer();
                 currentPlayer = game.getCurrentPlayer();
@@ -257,6 +256,18 @@ int main() {
 
                     l = Board::getEnumAt<Board::Letter>(letter_index);          
                     n = Board::getEnumAt<Board::Number>(number_index); 
+
+                    if (game.isCenterCard(l, n)) {
+                        cout << "Cannot choose empty center slot - choose another!\n";
+                        continue;
+                    }
+
+                    auto blocked = game.getBlockedPosition();
+                    if (blocked && l == blocked->first && n == blocked->second) {
+                        cout << "Blocked position - choose another!\n";
+                        continue;
+                    }
+
                 } catch (const out_of_range& e) {
                     cout << "Input must be a number and letter in valid board range: Letter = [A-";
                     cout << static_cast<char>('A' + GameParameters::BoardSize - 1) << "], Number = [1-";
@@ -264,12 +275,6 @@ int main() {
                     continue;
                 }
                 userInputInvalid = false;
-            }
-
-            auto blocked = game.getBlockedPosition();
-            if (blocked && l == blocked->first && n == blocked->second) {
-                cout << "Blocked position - choose another!\n";
-                continue;
             }
 
             try {
@@ -285,23 +290,20 @@ int main() {
                 game.setCurrentCard(game.getCard(l, n));
 
                 cout << '\n' << game << '\n';
-
+                
                 // Check match
-                if (game.getPreviousCard() == nullptr) {
-                    cout << "First card flipped!\n";
-                } else if (!rules.isValid(game)) {
+                if (!rules.isValid(game)) {
                     cout << "No match! " << currentPlayer.getName() << " is out this round.\n";
-                    game.turnFaceDown(l, n);
                     currentPlayer.setActive(false);
+                    game.nextPlayer();
+                    continue;
                 } else {
-                    cout << "Match!\n";
-                    if (game.isExpertRules()) {
-                        game.getCurrentCard()->applyEffect(game);
-                    }
+                    if (game.getPreviousCard() == nullptr) cout << "First card flipped\n";
+                    if (game.isExpertRules()) game.getCurrentCard()->applyEffect(game);
                 }
-
+                
                 if (!game.getExtraTurn()) game.nextPlayer();
-                game.setExtraTurn(false); // Reset after potential extra turn
+                game.setExtraTurn(false); // Reset after potential extra turn (if flipped a crab)
 
             } catch (const OutOfRange&) {                    
                 cout << "Invalid position - you are out this round!\n";
@@ -310,7 +312,7 @@ int main() {
             }
         }
 
-        // Round over - give rubies to the winner ===
+        // Round over - give rubies to the winner
         cout << "\n-------- ROUND " << game.getRound() << " OVER --------\n";
 
         for (Player& p : game.getPlayers()) {                    
@@ -330,7 +332,8 @@ int main() {
         cout << "------------------------------\n";
     }
 
-    // === Game over - final results ===
+    // Game over - final results
+    
     cout << "\n#########################################################\n";
     cout << "##################### GAME OVER #########################\n";
     cout << "#########################################################\n\n";

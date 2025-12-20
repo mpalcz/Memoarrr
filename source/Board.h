@@ -35,6 +35,7 @@ class Board {
     const Card *getCard(const Letter &, const Number &) const; // may be able to remove
     void setCard(const Letter &, const Number &, Card *);
     void allFacesDown();
+    bool isCenterCard(const Letter &l, const Number &n) const;
 
     friend std::ostream &operator<<(std::ostream &os, const Board &b);
 

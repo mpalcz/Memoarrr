@@ -73,6 +73,7 @@ public:
     std::pair<Board::Letter, Board::Number> getCurrentPosition() const { return currentPosition; }
     void setBlockedPosition(Board::Letter l, Board::Number n) { blockedPosition = {l, n}; }
     std::optional<std::pair<Board::Letter, Board::Number>> getBlockedPosition() const { return blockedPosition; } // rename the type???
+    bool isCenterCard(const Board::Letter &l, const Board::Number &n) const { return board.isCenterCard(l, n); }
 
     friend std::ostream& operator<<(std::ostream& os, const Game& g);
 };

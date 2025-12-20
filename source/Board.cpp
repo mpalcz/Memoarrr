@@ -4,13 +4,19 @@
 #include "CardDeck.h"
 #include "Exceptions.h"
 
+// Validates whether a position is the empty center one.
+// Params: l (Letter enum), n (Number enum).
+bool Board::isCenterCard(const Letter &l, const Number &n) const {
+    int row = toIndex<Board::Letter>(l), column = toIndex<Board::Number>(n);
+    return row == GameParameters::CenterRow && column == GameParameters::CenterCol;
+};
+
 // Validates if a position is within board bounds and not the center.
 // Params: l (Letter enum), n (Number enum).
 // Throws: OutOfRange if invalid.
 void Board::validatePosition(const Letter &l, const Number &n) const {
     int row = toIndex<Board::Letter>(l), column = toIndex<Board::Number>(n);
-    if (row < 0 || row >= GameParameters::BoardSize || column < 0 || column >= GameParameters::BoardSize
-        || (row == GameParameters::CenterRow && column == GameParameters::CenterCol)) {
+    if (row < 0 || row >= GameParameters::BoardSize || column < 0 || column >= GameParameters::BoardSize) {
         throw OutOfRange();
     }
 };
