@@ -23,8 +23,8 @@ void Board::validatePosition(const Letter &l, const Number &n) const {
 
 // Constructs a Board by populating it with shuffled cards from CardDeck.
 // Throws: NoMoreCards if deck is empty.
-Board::Board() {
-    CardDeck &boardDeck = CardDeck::make_CardDeck();
+Board::Board(bool expertRules) {
+    CardDeck &boardDeck = CardDeck::make_CardDeck(expertRules);
     for (int i = 0; i < GameParameters::BoardSize; ++i) {
         for (int j = 0; j < GameParameters::BoardSize; ++j) {
             if (i == GameParameters::CenterRow && j == GameParameters::CenterCol) {

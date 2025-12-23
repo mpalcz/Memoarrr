@@ -24,7 +24,7 @@ class Board {
     }
    
     // Constructor and Destructor
-    Board();
+    Board(bool expertRules = false);
     ~Board();
 
     // Public interface

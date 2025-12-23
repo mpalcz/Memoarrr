@@ -25,7 +25,7 @@ private:
     std::optional<std::pair<Board::Letter, Board::Number>> blockedPosition; // Invalid initial (before walrus is in effect)
 
 public:
-    Game(bool ed = false, bool er = false) : expertDisplayMode(ed), expertRulesMode(er), blockedPosition(std::nullopt) {}
+    Game(bool ed = false, bool er = false) : board(er), expertDisplayMode(ed), expertRulesMode(er), blockedPosition(std::nullopt) {}
 
     int getRound() const { return round; }
 

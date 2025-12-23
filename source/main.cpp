@@ -298,7 +298,7 @@ int main() {
                     game.nextPlayer();
                     continue;
                 } else {
-                    if (game.getPreviousCard() == nullptr) cout << "First card flipped\n";
+                    if (game.getPreviousCard() == nullptr) cout << "First card flipped!\n";
                     if (game.isExpertRules()) game.getCurrentCard()->applyEffect(game);
                 }
                 
