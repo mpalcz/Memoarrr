@@ -90,6 +90,7 @@ g++ -std=c++17 -Wall -Wextra -pedantic *.cpp -o memoarrr
 Run (command):
 -------------
 Windows: .\memoarrr.exe
+
 Linux/macOS: ./memoarrr.exe
 
 Project Contributors (2):
