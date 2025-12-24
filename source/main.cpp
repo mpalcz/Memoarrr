@@ -7,7 +7,8 @@
 #include "Rubis.h"
 #include "RubisDeck.h"
 #include "Rules.h"
-#include "Exceptions.h"        
+#include "Exceptions.h"
+#include "UserInput.h"        
 #include <iostream>
 #include <algorithm>
 #include <cctype>
@@ -16,63 +17,6 @@
 #include <sstream>
 
 using namespace std;
-
-/*
-* Function to clean up console user input, getting rid of leading and trailing whitespace 
-* and replacing multiple spaces with single spaces in between words
-*/ 
-string cleanInput(const string& input) {
-    string s = input;
-
-    // Trim any leading spaces
-    size_t start = s.find_first_not_of(' ');
-    if (start == string::npos) // string was all spaces
-        return ""; 
-    s = s.substr(start);
-
-    // Trim any trailing spaces
-    size_t end = s.find_last_not_of(' ');
-    s = s.substr(0, end + 1);
-
-    // Replace any multiple internal spaces with single spaces
-    ostringstream out;
-    bool inSpace = false;
-
-    for (char c : s) {
-        if (c == ' ') {
-            if (!inSpace) {
-                out << ' ';
-                inSpace = true;
-            }
-        } else {
-            out << c;
-            inSpace = false;
-        }
-    }
-
-    return out.str();
-}
-
-/*
-* Function to capitalize player name
-*/
-
-string capitalizeName(const string& name) {
-    ostringstream capitalizedName;
-    bool firstCharacterOfWord = true;
-
-    for (char c : name) {
-        if (firstCharacterOfWord) {
-            capitalizedName << static_cast<char>(toupper(static_cast<unsigned char>(c)));
-            firstCharacterOfWord = false;
-        } else {
-            if (c == ' ') firstCharacterOfWord = true;
-            capitalizedName << c;
-        }
-    }
-
-    return capitalizedName.str();
-}
 
 /*
 * Function that checks if there are any facedown cards left to flip in the game
@@ -93,7 +37,7 @@ bool hasFaceDownCards(const Game& game) {
 * Main loop starting console gameplay
 */ 
 int main() {
-    cout << "WELCOME TO MEMOARRR!\n\n";
+    cout << "\nWELCOME TO MEMOARRR!\n\n";
 
     // ------ Get game version from user ------
     string gameVersion;
@@ -235,47 +179,7 @@ int main() {
                 continue;
             }
 
-            string userInput;
-            bool userInputInvalid = true;
-            Board::Letter l;
-            Board::Number n;
-            while (userInputInvalid) {
-                cout << "Enter card - letter then number (ex. \"a1\" or \"B2\"): ";
-                getline(cin, userInput);
-                userInput = cleanInput(userInput);
-                if (userInput.size() !=2 || !(isalpha(userInput[0]) && isdigit(userInput[1]))) {
-                    cout << "Invalid input. Please try again." << endl; 
-                    continue;
-                }
-                try {
-                    char card_letter = toupper(userInput[0]);
-                    int letter_index = card_letter - 'A';
-
-                    int card_number = userInput[1] - '0';
-                    int number_index = card_number - 1; 
-
-                    l = Board::getEnumAt<Board::Letter>(letter_index);          
-                    n = Board::getEnumAt<Board::Number>(number_index); 
-
-                    if (game.isCenterCard(l, n)) {
-                        cout << "Cannot choose empty center slot - choose another!\n";
-                        continue;
-                    }
-
-                    auto blocked = game.getBlockedPosition();
-                    if (blocked && l == blocked->first && n == blocked->second) {
-                        cout << "Blocked position - choose another!\n";
-                        continue;
-                    }
-
-                } catch (const out_of_range& e) {
-                    cout << "Input must be a number and letter in valid board range: Letter = [A-";
-                    cout << static_cast<char>('A' + GameParameters::BoardSize - 1) << "], Number = [1-";
-                    cout << GameParameters::BoardSize << "]. Please try again." << endl;
-                    continue;
-                }
-                userInputInvalid = false;
-            }
+            auto [l, n] = getUserInputCard(game);
 
             try {
                 // Flip the card
@@ -299,7 +203,10 @@ int main() {
                     continue;
                 } else {
                     if (game.getPreviousCard() == nullptr) cout << "First card flipped!\n";
-                    if (game.isExpertRules()) game.getCurrentCard()->applyEffect(game);
+                    if (game.isExpertRules()) {
+                        string resultEffect = game.getCurrentCard()->applyEffect(game);
+                        cout << '\n' << game << '\n' << resultEffect << endl;
+                    }
                 }
                 
                 if (!game.getExtraTurn()) game.nextPlayer();

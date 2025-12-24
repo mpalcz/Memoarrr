@@ -47,7 +47,7 @@ class Card {
     static constexpr int getNRows() { return GameParameters::NumRowsCard; }
 
     // For expert modes
-    virtual void applyEffect(Game&) const {}
+    virtual std::string applyEffect(Game&) const { return ""; }
 
     // make Card "printable"
     friend std::ostream &operator<<(std::ostream &os, const Card &c);
