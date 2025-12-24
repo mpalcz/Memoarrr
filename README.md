@@ -19,6 +19,8 @@ Features
     on the animal on the flipped card
 - All required classes with exact public interfaces
 - Proper memory management, const-correctness, RAII
+- All preset dimensions and metrics of the game are stored in the GameParameters.h
+  file, allowing easy modifiability for different versions of the game
 
 Base Game
 ---------
