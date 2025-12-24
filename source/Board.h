@@ -36,6 +36,7 @@ class Board {
     void setCard(const Letter &, const Number &, Card *);
     void allFacesDown();
     bool isCenterCard(const Letter &l, const Number &n) const;
+    void swapCards(const Letter& l1, const Number& n1, const Letter& l2, const Number& n2);
 
     friend std::ostream &operator<<(std::ostream &os, const Board &b);
 

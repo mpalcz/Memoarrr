@@ -118,6 +118,17 @@ void Board::allFacesDown() {
     }
 }
 
+// Swaps the cards in two different positions
+void Board::swapCards(const Letter& l1, const Number& n1, const Letter& l2, const Number& n2) {
+    validatePosition(l1, n1);
+    validatePosition(l2, n2);
+    if ((l1 == l2) && (n1 == n2)) throw std::invalid_argument("Cannot swap the positions of the same card");
+    int row1 = toIndex<Letter>(l1), column1 = toIndex<Number>(n1);
+    int row2 = toIndex<Letter>(l2), column2 = toIndex<Number>(n2);
+    std::swap(board[row1][column1], board[row2][column2]);
+
+}
+
 // Prints the board line by line.
 // Params: os (output stream), b (const Board).
 // Returns: os for chaining.

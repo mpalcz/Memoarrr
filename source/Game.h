@@ -66,6 +66,8 @@ public:
     std::vector<Player>& getPlayers() { return players; }
     const std::vector<Player>& getPlayers() const { return players; }
 
+    void swapCards(Board::Letter l1, Board::Number n1, Board::Letter l2, Board::Number n2) { board.swapCards(l1, n1, l2, n2); }
+
     bool isExpertRules() const { return expertRulesMode; }
     void setExtraTurn(bool et) { extraTurn = et; }
     bool getExtraTurn() const { return extraTurn; }

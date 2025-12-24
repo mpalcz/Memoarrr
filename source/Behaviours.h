@@ -56,13 +56,10 @@ public:
         while (!validCard) {
             auto [l, n] = getUserInputCard(g);
             int chosenLetter = static_cast<int>(l), chosenNumber = static_cast<int>(n);
-            if (!(((currentLetter == chosenLetter) && (abs(currentNumber - chosenNumber) == 1)) || ((currentNumber == chosenNumber) && (abs(currentLetter - chosenNumber) == 1)))) {
+            if (!(((currentLetter == chosenLetter) && (abs(currentNumber - chosenNumber) == 1)) || ((currentNumber == chosenNumber) && (abs(currentLetter - chosenLetter) == 1)))) {
                 std::cout << "Card chosen must be adjacent. Try again" << std::endl;
             } else {
-                Card* curr = g.getCard(cl, cn);
-                Card* adj = g.getCard(l, n);
-                g.setCard(cl, cn, adj);
-                g.setCard(l, n, curr);
+                g.swapCards(cl, cn, l, n);
                 validCard = true;
             } 
         }
