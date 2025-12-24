@@ -193,19 +193,21 @@ int main() {
                 game.setCurrentPosition(l, n);
                 game.setCurrentCard(game.getCard(l, n));
 
-                cout << '\n' << game << '\n';
+                //cout << '\n' << game << '\n';
                 
                 // Check match
                 if (!rules.isValid(game)) {
-                    cout << "No match! " << currentPlayer.getName() << " is out this round.\n";
                     currentPlayer.setActive(false);
+                    cout << '\n' << game << '\n';
+                    cout << "No match! " << currentPlayer.getName() << " is out this round.\n";
                     game.nextPlayer();
                     continue;
                 } else {
+                    cout << '\n' << game << '\n';
                     if (game.getPreviousCard() == nullptr) cout << "First card flipped!\n";
                     if (game.isExpertRules()) {
                         string resultEffect = game.getCurrentCard()->applyEffect(game);
-                        cout << '\n' << game << '\n' << resultEffect << endl;
+                        cout << '\n' << game << '\n' << resultEffect;
                     }
                 }
                 
