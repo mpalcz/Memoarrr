@@ -64,20 +64,20 @@ Effects trigger polymorphically via virtual `applyEffect` on Card subclasses.
 
 Files
 -----
-main.cpp - game loop and input handling
-Game.h / Game.cpp - central game state
-Board.h / Board.cpp - 5×5 board management and display
-Card.h / Card.cpp - base card with printing
-Behaviours.h - polymorphic expert card effects
-CardDeck.h / CardDeck.cpp - singleton card deck (supports expert cards)
-RubisDeck.h / RubisDeck.cpp - singleton rubis deck
-Rubis.h - rubis reward class
-Player.h / Player.cpp - player information and status
-Rules.h / Rules.cpp - game rule validation
-DeckFactory.h - template base for decks
-GameParameters.h - all constants
-Exceptions.h - custom exceptions
-UserInput.h / UserInput.cpp - utility functions for cleaning and handling user input (e.g., card selection, name capitalization)
+- main.cpp - game loop and input handling
+- Game.h / Game.cpp - central game state
+- Board.h / Board.cpp - 5×5 board management and display
+- Card.h / Card.cpp - base card with printing
+- Behaviours.h - polymorphic expert card effects
+- CardDeck.h / CardDeck.cpp - singleton card deck (supports expert cards)
+- RubisDeck.h / RubisDeck.cpp - singleton rubis deck
+- Rubis.h - rubis reward class
+- Player.h / Player.cpp - player information and status
+- Rules.h / Rules.cpp - game rule validation
+- DeckFactory.h - template base for decks
+- GameParameters.h - all constants
+- Exceptions.h - custom exceptions
+- UserInput.h / UserInput.cpp - utility functions for cleaning and handling user input (e.g., card selection, name capitalization)
 
 Compilation (command):
 ---------------------
